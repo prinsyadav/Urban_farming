@@ -1,0 +1,6 @@
+./node_modules
+./backend/config/database.js
+./backend/config/config.js
+./backend/config/config.json
+./backend/node_modules
+./frontend/node_modules
