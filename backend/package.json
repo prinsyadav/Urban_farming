@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "nodemon server.js",
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "dev": "nodemon server.js"
   },
   "keywords": [],
   "author": "",
@@ -11,18 +13,21 @@
   "type": "commonjs",
   "description": "",
   "dependencies": {
+    "@tanstack/react-table": "^8.21.2",
     "axios": "^1.7.9",
     "backend": "file:",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
+    "date-fns": "^4.1.0",
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "jsonwebtoken": "^9.0.2",
+    "lucide-react": "^0.476.0",
     "mongoose": "^8.9.6",
     "nodemon": "^3.1.9",
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
-    "pg": "^8.13.1",
+    "pg": "^8.13.3",
     "pg-hstore": "^2.3.4",
     "sequelize": "^6.37.5"
   }

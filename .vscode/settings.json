@@ -5,7 +5,7 @@
       "server": "localhost",
       "port": 5432,
       "driver": "PostgreSQL",
-      "database": "test",
+      "database": "UrabnFarm",
       "username": "postgres",
       "password": "annu",
       "name": "pg database"

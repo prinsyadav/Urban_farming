@@ -1,40 +1,57 @@
 const express = require("express");
 const app = express();
 const port = 3000;
+const sequelize = require("./config/db");
+const plotRoutes = require("./routes/plotRoutes");
 
 // Allow CORS
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "Content-Type");
-  res.header("Access-Control-Allow-Methods", "POST");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept, Authorization"
+  );
+  res.header("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS");
+
+  // Handle preflight requests
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
   next();
 });
 
 // Middleware to parse JSON requests
 app.use(express.json());
 
-// Role-based greeting endpoint
-app.post("/api/greeting", async (req, res) => {
-  const { role, userId } = req.body;
+// Routes
+app.use("/api/plots", plotRoutes);
 
-  // Verify the role from user metadata
+// Role-based greeting endpoint (keeping your original code)
+// app.post("/api/greeting", async (req, res) => {
+//   const { role, userId } = req.body;
+//   ...
+// });
+
+// Simple route to check server status
+app.get("/api/status", (req, res) => {
+  res.json({ status: "Server is running" });
+});
+
+// Sync database and start server
+const initServer = async () => {
   try {
-    // In a production environment, you should verify the user's role
-    // by checking the Clerk session token and validating against your backend
+    // Sync all models with database
+    await sequelize.sync({ alter: true });
+    console.log("Database synchronized successfully");
 
-    if (role === "admin") {
-      res.json({ message: "Hello admin" });
-    } else if (role === "user") {
-      res.json({ message: "Hello user" });
-    } else {
-      res.status(400).json({ error: "Invalid role" });
-    }
+    // Start the server
+    app.listen(port, () => {
+      console.log(`Server listening on port ${port}`);
+    });
   } catch (error) {
-    res.status(500).json({ error: "Error verifying user role" });
+    console.error("Failed to initialize server:", error);
   }
-});
+};
 
-// Start the server
-app.listen(port, () => {
-  console.log(`Server listening on port ${port}`);
-});
+initServer();
