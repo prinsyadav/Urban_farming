@@ -1,39 +1,3 @@
-// import { SignedIn, useUser } from "@clerk/clerk-react";
-// import { FarmPlotCard } from "../plots/PlotCard";
-// import { useState } from "react";
-
-// function Home() {
-//   const { user } = useUser();
-//   const [showPlotCard, setShowPlotCard] = useState(false);
-
-//   const handleShowPlotCard = () => {
-//     setShowPlotCard(true);
-//   };
-
-//   return (
-//     <div className="flex flex-col justify-items-start min-h-screen">
-//       <main className="p-4">
-//         <SignedIn>
-//           {user && user.publicMetadata.role === "admin" && (
-//             <div className="flex flex-col items-center gap-4">
-//               <button
-//                 onClick={handleShowPlotCard}
-//                 className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-//               >
-//                 Add Plot
-//               </button>
-
-//               {showPlotCard && <FarmPlotCard />}
-//             </div>
-//           )}
-//         </SignedIn>
-//       </main>
-//     </div>
-//   );
-// }
-
-// export default Home;
-
 import { SignedIn, useUser } from "@clerk/clerk-react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";

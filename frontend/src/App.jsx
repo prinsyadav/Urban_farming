@@ -1,26 +1,3 @@
-// import { SignedIn, useUser, useOrganization } from "@clerk/clerk-react";
-// import { useState, useEffect } from "react";
-// import Header from "./assets/component/shared/Header";
-// import Footer from "./assets/component/shared/Footer";
-// import Home from "./assets/component/shared/Home";
-
-// export default function App() {
-
-//   const { user } = useUser();
-//   const { organization } = useOrganization();
-
-//   // Now we only need user in dependencies
-
-//   return (
-//     // <div>
-//     //   <Header />
-
-//     //   <Home />
-
-//     //   <Footer />
-//     // </div>
-//   );
-// }
 import { Routes, Route } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import Layout from "./Layout";

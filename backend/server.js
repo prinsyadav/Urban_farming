@@ -27,12 +27,6 @@ app.use(express.json());
 // Routes
 app.use("/api/plots", plotRoutes);
 
-// Role-based greeting endpoint (keeping your original code)
-// app.post("/api/greeting", async (req, res) => {
-//   const { role, userId } = req.body;
-//   ...
-// });
-
 // Simple route to check server status
 app.get("/api/status", (req, res) => {
   res.json({ status: "Server is running" });
