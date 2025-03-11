@@ -43,12 +43,18 @@ import {
   Map,
   Users,
 } from "lucide-react";
+import { CropForm } from "../../components/crops/CropForm";
+import { CropEditForm } from "../../components/crops/CropEditForm";
+import { PlotEditForm } from "../../components/plots/PlotEditForm";
 
 function AdminDashboard() {
   const { user } = useUser();
   const [plots, setPlots] = useState([]);
+  const [crops, setCrops] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isCropsLoading, setIsCropsLoading] = useState(true);
   const [showPlotCard, setShowPlotCard] = useState(false);
+  const [showCropForm, setShowCropForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [dashboardStats, setDashboardStats] = useState({
     totalPlots: 0,
@@ -56,6 +62,12 @@ function AdminDashboard() {
     totalArea: 0,
     cropTypes: 0,
   });
+
+  // State for edit forms
+  const [showPlotEditForm, setShowPlotEditForm] = useState(false);
+  const [showCropEditForm, setShowCropEditForm] = useState(false);
+  const [selectedPlot, setSelectedPlot] = useState(null);
+  const [selectedCrop, setSelectedCrop] = useState(null);
 
   // Fetch all plots when component mounts
   useEffect(() => {
@@ -100,6 +112,31 @@ function AdminDashboard() {
     }
   };
 
+  // Fetch all crops when component mounts or when activeTab changes to crops
+  useEffect(() => {
+    if (activeTab === "crops") {
+      fetchCrops();
+    }
+  }, [activeTab]);
+
+  // Function to fetch crops from the API
+  const fetchCrops = async () => {
+    setIsCropsLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/api/crops");
+      if (!response.ok) {
+        throw new Error("Failed to fetch crops");
+      }
+      const data = await response.json();
+      setCrops(data.data || []);
+    } catch (error) {
+      console.error("Error fetching crops:", error);
+      toast.error("Failed to load crops");
+    } finally {
+      setIsCropsLoading(false);
+    }
+  };
+
   // Handle adding a new plot
   const handleAddPlot = () => {
     setShowPlotCard(true);
@@ -110,6 +147,19 @@ function AdminDashboard() {
     setShowPlotCard(false);
     fetchPlots(); // Refresh plots after adding
     toast.success("Plot added successfully");
+  };
+
+  // Handle editing a plot
+  const handleEditPlot = (plot) => {
+    setSelectedPlot(plot);
+    setShowPlotEditForm(true);
+  };
+
+  // Handle plot updated successfully
+  const handlePlotUpdated = () => {
+    setShowPlotEditForm(false);
+    setSelectedPlot(null);
+    fetchPlots(); // Refresh plots after update
   };
 
   // Handle deleting a plot
@@ -133,6 +183,55 @@ function AdminDashboard() {
     } catch (error) {
       console.error("Error deleting plot:", error);
       toast.error("Failed to delete plot");
+    }
+  };
+
+  // Handle adding a new crop
+  const handleAddCrop = () => {
+    setShowCropForm(true);
+  };
+
+  // Handle crop added successfully
+  const handleCropAdded = () => {
+    setShowCropForm(false);
+    fetchCrops(); // Refresh crops after adding
+    toast.success("Crop added successfully");
+  };
+
+  // Handle editing a crop
+  const handleEditCrop = (crop) => {
+    setSelectedCrop(crop);
+    setShowCropEditForm(true);
+  };
+
+  // Handle crop updated successfully
+  const handleCropUpdated = () => {
+    setShowCropEditForm(false);
+    setSelectedCrop(null);
+    fetchCrops(); // Refresh crops after update
+  };
+
+  // Handle deleting a crop
+  const handleDeleteCrop = async (cropId) => {
+    if (!confirm("Are you sure you want to delete this crop?")) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/crops/${cropId}`,
+        {
+          method: "DELETE",
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete crop");
+      }
+
+      toast.success("Crop deleted successfully");
+      fetchCrops(); // Refresh crops after deletion
+    } catch (error) {
+      console.error("Error deleting crop:", error);
+      toast.error("Failed to delete crop");
     }
   };
 
@@ -172,6 +271,25 @@ function AdminDashboard() {
       <Badge className={`${colors[soilType] || "bg-gray-500"}`}>
         {soilType}
       </Badge>
+    );
+  };
+
+  // Format date or return placeholder
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not scheduled";
+    return format(new Date(dateString), "MMM d, yyyy");
+  };
+
+  // Get crop status badge
+  const getCropStatusBadge = (status) => {
+    const colors = {
+      Planted: "bg-blue-500",
+      Growing: "bg-green-500",
+      Harvested: "bg-amber-500",
+    };
+
+    return (
+      <Badge className={`${colors[status] || "bg-gray-500"}`}>{status}</Badge>
     );
   };
 
@@ -415,7 +533,9 @@ function AdminDashboard() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
-                                  <DropdownMenuItem>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditPlot(plot)}
+                                  >
                                     <Edit className="mr-2 h-4 w-4" /> Edit
                                   </DropdownMenuItem>
                                   <DropdownMenuSeparator />
@@ -444,16 +564,104 @@ function AdminDashboard() {
         {/* Crops Tab Content */}
         <TabsContent value="crops">
           <Card>
-            <CardHeader>
-              <CardTitle>Crop Management</CardTitle>
-              <CardDescription>
-                Manage crops and their rotation plans
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Crop Management</CardTitle>
+                <CardDescription>
+                  Manage crops and their rotation plans
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleAddCrop}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add New Crop
+              </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Crop management interface coming soon
-              </p>
+              {isCropsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Variety</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Planting Date</TableHead>
+                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead>Status</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {crops.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={8} className="h-24 text-center">
+                            No crops found. Add your first crop to get started.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        crops.map((crop) => (
+                          <TableRow key={crop.crop_id}>
+                            <TableCell className="font-medium">
+                              {crop.crop_id}
+                            </TableCell>
+                            <TableCell>{crop.name}</TableCell>
+                            <TableCell>{crop.variety || "N/A"}</TableCell>
+                            <TableCell>
+                              {crop.plot?.location || crop.plot_id}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(crop.planting_date)}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(crop.harvest_date)}
+                            </TableCell>
+                            <TableCell>
+                              {getCropStatusBadge(crop.status)}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">Open menu</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditCrop(crop)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() =>
+                                      handleDeleteCrop(crop.crop_id)
+                                    }
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -508,6 +716,76 @@ function AdminDashboard() {
               </Button>
             </div>
             <FarmPlotCard onPlotAdded={handlePlotAdded} />
+          </div>
+        </div>
+      )}
+
+      {/* Plot Edit Form Modal */}
+      {showPlotEditForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Plot</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowPlotEditForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <PlotEditForm
+              plot={selectedPlot}
+              onPlotUpdated={handlePlotUpdated}
+              onCancel={() => setShowPlotEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Crop Form Modal */}
+      {showCropForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Crop</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCropForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <CropForm
+              onCropAdded={handleCropAdded}
+              plots={plots}
+              onCancel={() => setShowCropForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Crop Edit Form Modal */}
+      {showCropEditForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Crop</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowCropEditForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <CropEditForm
+              crop={selectedCrop}
+              plots={plots}
+              onCropUpdated={handleCropUpdated}
+              onCancel={() => setShowCropEditForm(false)}
+            />
           </div>
         </div>
       )}

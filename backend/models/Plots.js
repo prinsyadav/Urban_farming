@@ -39,8 +39,22 @@ const Plot = sequelize.define(
     },
   },
   {
-    timestamps: true,
+    tableName: "Plots",
+    // timestamps: true,
   }
 );
 
+// Define association with Crop model (will be loaded when Plot is imported)
+// This is called after Crop model is defined
+const initAssociations = () => {
+  const Crop = require("./Crop");
+
+  Plot.hasMany(Crop, {
+    foreignKey: "plot_id",
+    as: "crops",
+  });
+};
+
+// Export both the model and the function to initialize associations
 module.exports = Plot;
+module.exports.initAssociations = initAssociations;

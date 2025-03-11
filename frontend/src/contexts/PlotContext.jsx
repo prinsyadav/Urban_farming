@@ -1,19 +1,15 @@
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useState, useContext, useEffect } from "react";
 import { toast } from "sonner";
 
-const PlotContext = createContext();
+export const PlotContext = createContext();
 
-export function PlotProvider({ children }) {
+export const PlotProvider = ({ children }) => {
   const [plots, setPlots] = useState([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchPlots();
-  }, []);
-
+  // Fetch all plots
   const fetchPlots = async () => {
-    setIsLoading(true);
+    setLoading(true);
     try {
       const response = await fetch("http://localhost:3000/api/plots");
       if (!response.ok) {
@@ -21,15 +17,15 @@ export function PlotProvider({ children }) {
       }
       const data = await response.json();
       setPlots(data.data || []);
-      setError(null);
-    } catch (err) {
-      console.error("Error fetching plots:", err);
-      setError("Failed to load plots");
+    } catch (error) {
+      console.error("Error fetching plots:", error);
+      toast.error("Failed to load plots data");
     } finally {
-      setIsLoading(false);
+      setLoading(false);
     }
   };
 
+  // Add a new plot
   const addPlot = async (plotData) => {
     try {
       const response = await fetch("http://localhost:3000/api/plots", {
@@ -41,20 +37,19 @@ export function PlotProvider({ children }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to add plot");
+        throw new Error("Failed to add plot");
       }
 
-      const newPlot = await response.json();
-      setPlots([...plots, newPlot.data]);
-      toast.success("Plot added successfully");
-      return newPlot.data;
-    } catch (err) {
-      toast.error(err.message);
-      throw err;
+      await fetchPlots(); // Refresh plots after adding
+      return { success: true };
+    } catch (error) {
+      console.error("Error adding plot:", error);
+      toast.error("Failed to add plot");
+      return { success: false, error: error.message };
     }
   };
 
+  // Delete a plot
   const deletePlot = async (plotId) => {
     try {
       const response = await fetch(
@@ -68,65 +63,32 @@ export function PlotProvider({ children }) {
         throw new Error("Failed to delete plot");
       }
 
-      setPlots(plots.filter((plot) => plot.plot_id !== plotId));
-      toast.success("Plot deleted successfully");
-    } catch (err) {
-      toast.error(err.message);
-      throw err;
+      await fetchPlots(); // Refresh plots after deletion
+      return { success: true };
+    } catch (error) {
+      console.error("Error deleting plot:", error);
+      toast.error("Failed to delete plot");
+      return { success: false, error: error.message };
     }
   };
 
-  const updatePlot = async (plotId, plotData) => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/plots/${plotId}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(plotData),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || "Failed to update plot");
-      }
-
-      const updatedPlot = await response.json();
-      setPlots(
-        plots.map((plot) => (plot.plot_id === plotId ? updatedPlot.data : plot))
-      );
-      toast.success("Plot updated successfully");
-      return updatedPlot.data;
-    } catch (err) {
-      toast.error(err.message);
-      throw err;
-    }
-  };
+  useEffect(() => {
+    fetchPlots();
+  }, []);
 
   return (
     <PlotContext.Provider
       value={{
         plots,
-        isLoading,
-        error,
+        loading,
         fetchPlots,
         addPlot,
         deletePlot,
-        updatePlot,
       }}
     >
       {children}
     </PlotContext.Provider>
   );
-}
+};
 
-export function usePlot() {
-  const context = useContext(PlotContext);
-  if (context === undefined) {
-    throw new Error("usePlot must be used within a PlotProvider");
-  }
-  return context;
-}
+export const usePlot = () => useContext(PlotContext);

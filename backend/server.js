@@ -3,6 +3,7 @@ const app = express();
 const port = 3000;
 const sequelize = require("./config/db");
 const plotRoutes = require("./routes/plotRoutes");
+const cropRoutes = require("./routes/cropRoutes");
 
 // Allow CORS
 app.use((req, res, next) => {
@@ -26,6 +27,7 @@ app.use(express.json());
 
 // Routes
 app.use("/api/plots", plotRoutes);
+app.use("/api/crops", cropRoutes);
 
 // Simple route to check server status
 app.get("/api/status", (req, res) => {

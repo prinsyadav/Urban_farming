@@ -1,4 +1,3 @@
-
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
@@ -12,8 +11,10 @@ import {
 import Layout from "./Layout.jsx";
 import Home from "./assets/component/shared/Home.jsx";
 import About from "./assets/component/shared/About.jsx";
-import AdminLayout from "./layouts/AdminLayouts.jsx";
+import AdminLayout from "./layouts/AdminLayout.jsx";
+// import FarmerLayout from "./layouts/FarmerLayout.jsx"; // We'll create this
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
+// import FarmerDashboard from "./pages/farmer/FarmerDashboard.jsx"; // Our new component
 import { PlotProvider } from "./contexts/PlotContext.jsx";
 
 // Import your Publishable Key
@@ -37,6 +38,14 @@ const router = createBrowserRouter(
           </AdminLayout>
         }
       />
+      {/* <Route
+        path="/farmer-dashboard"
+        element={
+          <FarmerLayout>
+            <FarmerDashboard />
+          </FarmerLayout>
+        }
+      /> */}
       <Route path="/about" element={<About />} />
     </Route>
   )
