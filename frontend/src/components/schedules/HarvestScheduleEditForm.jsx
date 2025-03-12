@@ -1,7 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
   Select,
@@ -20,12 +19,21 @@ import { format } from "date-fns";
 import { CalendarIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
-export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
+export function HarvestScheduleEditForm({
+  schedule,
+  onScheduleUpdated,
+  onCancel,
+  plots = [],
+}) {
   const [formData, setFormData] = useState({
-    plot_id: "",
-    crop_id: "",
-    expected_harvest_date: null,
-    actual_harvest_date: null,
+    plot_id: schedule?.plot_id || "",
+    crop_id: schedule?.crop_id?.toString() || "",
+    expected_harvest_date: schedule?.expected_harvest_date
+      ? new Date(schedule.expected_harvest_date)
+      : null,
+    actual_harvest_date: schedule?.actual_harvest_date
+      ? new Date(schedule.actual_harvest_date)
+      : null,
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [crops, setCrops] = useState([]);
@@ -80,9 +88,9 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/harvest-schedules",
+        `http://localhost:3000/api/harvest-schedules/${schedule.schedule_id}`,
         {
-          method: "POST",
+          method: "PUT",
           headers: {
             "Content-Type": "application/json",
           },
@@ -91,14 +99,14 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
       );
 
       if (!response.ok) {
-        throw new Error("Failed to create harvest schedule");
+        throw new Error("Failed to update harvest schedule");
       }
 
-      toast.success("Harvest schedule created successfully");
-      onScheduleAdded();
+      toast.success("Harvest schedule updated successfully");
+      onScheduleUpdated();
     } catch (error) {
-      console.error("Error creating harvest schedule:", error);
-      toast.error("Failed to create harvest schedule");
+      console.error("Error updating harvest schedule:", error);
+      toast.error("Failed to update harvest schedule");
     } finally {
       setIsSubmitting(false);
     }
@@ -203,7 +211,6 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
                   handleInputChange("expected_harvest_date", date)
                 }
                 initialFocus
-                disabled={(date) => date < new Date()}
               />
             </PopoverContent>
           </Popover>
@@ -263,10 +270,10 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Saving...
+              Updating...
             </>
           ) : (
-            "Save Schedule"
+            "Update Schedule"
           )}
         </Button>
       </div>

@@ -51,6 +51,9 @@ import { PlotEditForm } from "../../components/plots/PlotEditForm";
 import { HarvestScheduleForm } from "../../components/schedules/HarvestScheduleForm";
 import { CropRotationForm } from "../../components/rotations/CropRotationForm";
 import { ActivityLogForm } from "../../components/activities/ActivityLogForm";
+import { HarvestScheduleEditForm } from "../../components/schedules/HarvestScheduleEditForm";
+import { CropRotationEditForm } from "../../components/rotations/CropRotationEditForm";
+import { ActivityLogEditForm } from "../../components/activities/ActivityLogEditForm";
 
 function AdminDashboard() {
   const { user } = useUser();
@@ -82,6 +85,14 @@ function AdminDashboard() {
   const [showCropEditForm, setShowCropEditForm] = useState(false);
   const [selectedPlot, setSelectedPlot] = useState(null);
   const [selectedCrop, setSelectedCrop] = useState(null);
+
+  // Add these new state variables for edit forms
+  const [showScheduleEditForm, setShowScheduleEditForm] = useState(false);
+  const [showRotationEditForm, setShowRotationEditForm] = useState(false);
+  const [showActivityEditForm, setShowActivityEditForm] = useState(false);
+  const [selectedSchedule, setSelectedSchedule] = useState(null);
+  const [selectedRotation, setSelectedRotation] = useState(null);
+  const [selectedActivity, setSelectedActivity] = useState(null);
 
   // Fetch all plots when component mounts
   useEffect(() => {
@@ -353,6 +364,18 @@ function AdminDashboard() {
     toast.success("Crop rotation added successfully");
   };
 
+  const handleEditRotation = (rotation) => {
+    setSelectedRotation(rotation);
+    setShowRotationEditForm(true);
+  };
+
+  const handleRotationUpdated = () => {
+    setShowRotationEditForm(false);
+    setSelectedRotation(null);
+    fetchCropRotations();
+    toast.success("Crop rotation updated successfully");
+  };
+
   const handleDeleteRotation = async (rotationId) => {
     if (!confirm("Are you sure you want to delete this rotation?")) return;
 
@@ -382,6 +405,18 @@ function AdminDashboard() {
     setShowActivityForm(false);
     fetchActivityLogs();
     toast.success("Activity log added successfully");
+  };
+
+  const handleEditActivity = (activity) => {
+    setSelectedActivity(activity);
+    setShowActivityEditForm(true);
+  };
+
+  const handleActivityUpdated = () => {
+    setShowActivityEditForm(false);
+    setSelectedActivity(null);
+    fetchActivityLogs();
+    toast.success("Activity log updated successfully");
   };
 
   const handleDeleteActivity = async (activityId) => {
@@ -924,6 +959,12 @@ function AdminDashboard() {
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
+                                    onClick={() => handleEditSchedule(schedule)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
+                                  <DropdownMenuItem
                                     className="text-red-600"
                                     onClick={() =>
                                       handleDeleteSchedule(schedule.schedule_id)
@@ -1015,6 +1056,12 @@ function AdminDashboard() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditRotation(rotation)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="text-red-600"
                                     onClick={() =>
@@ -1117,6 +1164,12 @@ function AdminDashboard() {
                                 </DropdownMenuTrigger>
                                 <DropdownMenuContent align="end">
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    onClick={() => handleEditActivity(activity)}
+                                  >
+                                    <Edit className="mr-2 h-4 w-4" /> Edit
+                                  </DropdownMenuItem>
+                                  <DropdownMenuSeparator />
                                   <DropdownMenuItem
                                     className="text-red-600"
                                     onClick={() =>
@@ -1269,6 +1322,30 @@ function AdminDashboard() {
         </div>
       )}
 
+      {/* Harvest Schedule Edit Form Modal */}
+      {showScheduleEditForm && selectedSchedule && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Harvest Schedule</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowScheduleEditForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <HarvestScheduleEditForm
+              schedule={selectedSchedule}
+              plots={plots}
+              onScheduleUpdated={handleScheduleUpdated}
+              onCancel={() => setShowScheduleEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Crop Rotation Form Modal */}
       {showRotationForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1292,6 +1369,30 @@ function AdminDashboard() {
         </div>
       )}
 
+      {/* Crop Rotation Edit Form Modal */}
+      {showRotationEditForm && selectedRotation && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Crop Rotation</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowRotationEditForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <CropRotationEditForm
+              rotation={selectedRotation}
+              plots={plots}
+              onRotationUpdated={handleRotationUpdated}
+              onCancel={() => setShowRotationEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
       {/* Activity Log Form Modal */}
       {showActivityForm && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -1310,6 +1411,30 @@ function AdminDashboard() {
               onActivityAdded={handleActivityAdded}
               plots={plots}
               onCancel={() => setShowActivityForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Activity Log Edit Form Modal */}
+      {showActivityEditForm && selectedActivity && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Edit Activity Log</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowActivityEditForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <ActivityLogEditForm
+              activity={selectedActivity}
+              plots={plots}
+              onActivityUpdated={handleActivityUpdated}
+              onCancel={() => setShowActivityEditForm(false)}
             />
           </div>
         </div>
