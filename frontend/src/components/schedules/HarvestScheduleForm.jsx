@@ -90,6 +90,14 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
         }
       );
 
+      // Handle conflict - schedule already exists for this plot
+      if (response.status === 409) {
+        const data = await response.json();
+        toast.error(data.error || "A schedule already exists for this plot");
+        setIsSubmitting(false);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Failed to create harvest schedule");
       }

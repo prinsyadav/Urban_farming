@@ -172,6 +172,20 @@ exports.createHarvestSchedule = async (req, res) => {
       });
     }
 
+    // Check if a harvest schedule already exists for this plot
+    const existingSchedule = await HarvestSchedule.findOne({
+      where: { plot_id: plot_id },
+    });
+
+    if (existingSchedule) {
+      return res.status(409).json({
+        success: false,
+        error:
+          "A harvest schedule already exists for this plot. Please update the existing schedule instead of creating a new one.",
+        existingSchedule: existingSchedule,
+      });
+    }
+
     const harvestSchedule = await HarvestSchedule.create({
       plot_id,
       crop_id,
@@ -209,6 +223,22 @@ exports.updateHarvestSchedule = async (req, res) => {
         success: false,
         error: "Harvest schedule not found",
       });
+    }
+
+    // If we're changing the plot_id, check if a schedule already exists for the new plot
+    if (req.body.plot_id && req.body.plot_id !== harvestSchedule.plot_id) {
+      const existingSchedule = await HarvestSchedule.findOne({
+        where: { plot_id: req.body.plot_id },
+      });
+
+      if (existingSchedule) {
+        return res.status(409).json({
+          success: false,
+          error:
+            "A harvest schedule already exists for the target plot. Cannot update to this plot.",
+          existingSchedule: existingSchedule,
+        });
+      }
     }
 
     await harvestSchedule.update(req.body);

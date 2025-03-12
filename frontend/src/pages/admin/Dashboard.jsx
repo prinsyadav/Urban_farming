@@ -333,6 +333,11 @@ function AdminDashboard() {
     toast.success("Harvest schedule added successfully");
   };
 
+  const handleScheduleError = (message) => {
+    toast.error(message || "Failed to create harvest schedule");
+    // Keep the form open so the user can modify their selection
+  };
+
   const handleDeleteSchedule = async (scheduleId) => {
     if (!confirm("Are you sure you want to delete this schedule?")) return;
 
