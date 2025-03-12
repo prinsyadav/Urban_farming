@@ -1,1029 +1,837 @@
-// import { useEffect, useState } from "react";
-// import { useUser } from "@clerk/clerk-react";
-// import { toast } from "sonner";
-// import { format } from "date-fns";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-// import {
-//   Card,
-//   CardContent,
-//   CardDescription,
-//   CardHeader,
-//   CardTitle,
-//   CardFooter,
-// } from "@/components/ui/card";
-// import {
-//   Table,
-//   TableBody,
-//   TableCell,
-//   TableHead,
-//   TableHeader,
-//   TableRow,
-// } from "@/components/ui/table";
-// import { Button } from "@/components/ui/button";
-// import { Badge } from "@/components/ui/badge";
-// import { PlotDetailsDialog } from "../../assets/component/plots/PlotDetailsDialog";
-// import {
-//   Loader2,
-//   LayoutDashboard,
-//   Sprout,
-//   Calendar,
-//   Map,
-//   PieChart,
-//   FileText,
-//   Info,
-//   Download,
-//   BarChart,
-// } from "lucide-react";
-// import { ScrollArea } from "@/components/ui/scroll-area";
+import { useEffect, useState } from "react";
+import { useUser } from "@clerk/clerk-react";
+import { toast } from "sonner";
+import { format } from "date-fns";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+  CardFooter,
+} from "@/components/ui/card";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
+import {
+  LayoutDashboard,
+  PieChart,
+  Sprout,
+  Calendar,
+  Map,
+  RotateCw,
+  Droplets,
+  Loader2,
+  Info,
+  Download,
+} from "lucide-react";
 
-// function FarmerDashboard() {
-//   const { user } = useUser();
-//   const [plots, setPlots] = useState([]);
-//   const [crops, setCrops] = useState([]);
-//   const [isLoading, setIsLoading] = useState(true);
-//   const [isCropsLoading, setIsCropsLoading] = useState(true);
-//   const [activeTab, setActiveTab] = useState("overview");
-//   const [selectedPlot, setSelectedPlot] = useState(null);
-//   const [plotDetailsOpen, setPlotDetailsOpen] = useState(false);
-//   const [error, setError] = useState(null);
-//   const [dashboardStats, setDashboardStats] = useState({
-//     totalPlots: 0,
-//     activePlots: 0,
-//     totalArea: 0,
-//     cropsPlanted: 0,
-//     upcomingHarvests: 0,
-//   });
+function FarmerDashboard() {
+  const { user, isLoaded: isUserLoaded } = useUser();
+  const [plots, setPlots] = useState([]);
+  const [crops, setCrops] = useState([]);
+  const [harvestSchedules, setHarvestSchedules] = useState([]);
+  const [cropRotations, setCropRotations] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isCropsLoading, setIsCropsLoading] = useState(true);
+  const [isSchedulesLoading, setIsSchedulesLoading] = useState(true);
+  const [isRotationsLoading, setIsRotationsLoading] = useState(true);
+  const [isActivitiesLoading, setIsActivitiesLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState("overview");
+  const [dashboardStats, setDashboardStats] = useState({
+    totalPlots: 0,
+    activePlots: 0,
+    totalArea: 0,
+    cropTypes: 0,
+  });
 
-//   // Get owner_id from clerk metadata
-//   const ownerId = user?.publicMetadata?.owner_id;
+  // Get farmer ID from Clerk metadata
+  const farmerId = user?.publicMetadata?.owner_id;
+  const isRole = user?.publicMetadata?.role === "farmer";
 
-//   // Fetch all plots for this farmer when component mounts
-//   useEffect(() => {
-//     if (ownerId) {
-//       console.log("Fetching plots for owner:", ownerId);
-//       fetchFarmerPlots(ownerId);
-//       // Also fetch reports when we have an owner ID
-//       fetchReports(ownerId);
-//     } else {
-//       console.warn("No owner_id found in user metadata:", user?.publicMetadata);
-//       setIsLoading(false);
-//       setIsReportsLoading(false);
-//       toast.warning(
-//         "Owner ID not found in your profile. Please contact an administrator."
-//       );
-//     }
-//   }, [ownerId, user?.publicMetadata]);
+  // Fetch data when user is loaded
+  useEffect(() => {
+    if (isUserLoaded && farmerId && isRole) {
+      fetchFarmerPlots();
+    }
+  }, [isUserLoaded, farmerId, isRole]);
 
-//   // Update dashboard stats when plots or crops change
-//   useEffect(() => {
-//     if (plots.length > 0) {
-//       const activePlots = plots.filter(
-//         (plot) => plot.status === "active"
-//       ).length;
-//       const totalArea = plots.reduce(
-//         (sum, plot) => sum + parseFloat(plot.size),
-//         0
-//       );
+  // Update dashboard stats when plots change
+  useEffect(() => {
+    if (plots.length > 0) {
+      const activePlots = plots.filter(
+        (plot) => plot.status === "active"
+      ).length;
+      const totalArea = plots.reduce(
+        (sum, plot) => sum + parseFloat(plot.size),
+        0
+      );
 
-//       setDashboardStats((prev) => ({
-//         ...prev,
-//         totalPlots: plots.length,
-//         activePlots,
-//         totalArea: totalArea.toFixed(2),
-//       }));
-//     }
+      // Get unique crop types
+      const uniqueCrops = new Set(crops.map((crop) => crop.name));
 
-//     if (crops.length > 0) {
-//       // Count upcoming harvests (crops with harvest dates in the future)
-//       const now = new Date();
-//       const upcomingHarvests = crops.filter((crop) => {
-//         return crop.harvest_date && new Date(crop.harvest_date) > now;
-//       }).length;
+      setDashboardStats({
+        totalPlots: plots.length,
+        activePlots,
+        totalArea: totalArea.toFixed(2),
+        cropTypes: uniqueCrops.size || 0,
+      });
+    }
+  }, [plots, crops]);
 
-//       setDashboardStats((prev) => ({
-//         ...prev,
-//         cropsPlanted: crops.length,
-//         upcomingHarvests,
-//       }));
-//     }
-//   }, [plots, crops]);
+  // Fetch additional data when active tab changes
+  useEffect(() => {
+    if (plots.length > 0) {
+      if (activeTab === "crops") {
+        fetchFarmerCrops();
+      } else if (activeTab === "schedule") {
+        fetchFarmerHarvestSchedules();
+      } else if (activeTab === "rotations") {
+        fetchFarmerCropRotations();
+      } else if (activeTab === "activities") {
+        fetchFarmerActivityLogs();
+      }
+    }
+  }, [activeTab, plots]);
 
-//   // Function to fetch plots from the API for a specific owner
-//   const fetchFarmerPlots = async (ownerId) => {
-//     setIsLoading(true);
-//     try {
-//       // Ensure we're using the correct query parameter name that the backend expects
-//       const response = await fetch(
-//         `http://localhost:3000/api/plots?owner=${ownerId}`
-//       );
+  // Function to fetch plots for this farmer
+  const fetchFarmerPlots = async () => {
+    setIsLoading(true);
+    try {
+      // Use the owner-specific endpoint
+      const response = await fetch(
+        `http://localhost:3000/api/plots/owner/${farmerId}`
+      );
 
-//       if (!response.ok) {
-//         if (response.status === 404) {
-//           // Handle 404 specifically
-//           console.warn("No plots found for this owner");
-//           setPlots([]);
-//           setCrops([]);
-//           setIsCropsLoading(false);
-//           return;
-//         }
-//         throw new Error(`Failed to fetch plots: ${response.statusText}`);
-//       }
+      if (response.status === 404) {
+        // No plots found for this owner
+        setPlots([]);
+        setIsLoading(false);
+        return;
+      }
 
-//       const data = await response.json();
-//       setPlots(data.data || []);
+      if (!response.ok) {
+        throw new Error("Failed to fetch plots");
+      }
 
-//       // After getting plots, fetch all crops for these plots
-//       if (data.data && data.data.length > 0) {
-//         fetchAllCropsForPlots(data.data.map((plot) => plot.plot_id));
-//       } else {
-//         setCrops([]);
-//         setIsCropsLoading(false);
-//       }
-//     } catch (error) {
-//       console.error("Error fetching plots:", error);
-//       setError(error.message);
-//       toast.error("Failed to load your plots. Please try again later.");
-//     } finally {
-//       setIsLoading(false);
-//     }
-//   };
+      const data = await response.json();
+      setPlots(data.data || []);
 
-//   // Function to fetch crops for all plots of this farmer
-//   const fetchAllCropsForPlots = async (plotIds) => {
-//     if (!plotIds || plotIds.length === 0) {
-//       setIsCropsLoading(false);
-//       return;
-//     }
+      // After getting plots, fetch crops for overview stats
+      if (data.data && data.data.length > 0) {
+        fetchFarmerCrops(data.data);
+      }
+    } catch (error) {
+      console.error("Error fetching plots:", error);
+      toast.error("Failed to load your plots");
+      setPlots([]);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
-//     setIsCropsLoading(true);
-//     try {
-//       // For simplicity, we'll fetch all crops and filter client-side
-//       const response = await fetch("http://localhost:3000/api/crops");
+  // Function to fetch crops for this farmer's plots
+  const fetchFarmerCrops = async (plotsData = plots) => {
+    setIsCropsLoading(true);
+    try {
+      if (plotsData.length === 0) {
+        setCrops([]);
+        return;
+      }
 
-//       if (!response.ok) {
-//         throw new Error(`Failed to fetch crops: ${response.statusText}`);
-//       }
+      const allCrops = [];
 
-//       const data = await response.json();
+      // Fetch crops for each plot
+      for (const plot of plotsData) {
+        const response = await fetch(
+          `http://localhost:3000/api/crops/plot/${plot.plot_id}`
+        );
 
-//       // Filter crops to only those on this farmer's plots
-//       const farmerCrops = (data.data || []).filter((crop) =>
-//         plotIds.includes(crop.plot_id)
-//       );
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            allCrops.push(...data.data);
+          }
+        }
+      }
 
-//       setCrops(farmerCrops);
-//     } catch (error) {
-//       console.error("Error fetching crops:", error);
-//       setError(error.message);
-//       toast.error("Failed to load crop information");
-//     } finally {
-//       setIsCropsLoading(false);
-//     }
-//   };
+      setCrops(allCrops);
+    } catch (error) {
+      console.error("Error fetching crops:", error);
+      toast.error("Failed to load your crops");
+    } finally {
+      setIsCropsLoading(false);
+    }
+  };
 
-//   // Function to fetch reports by owner ID
-//   const fetchReports = async (ownerId) => {
-//     setIsReportsLoading(true);
-//     try {
-//       // In a real application, you'd fetch this from your API
-//       // For now, let's mock some data based on the crops we have
+  // Function to fetch harvest schedules for this farmer's plots
+  const fetchFarmerHarvestSchedules = async () => {
+    setIsSchedulesLoading(true);
+    try {
+      if (plots.length === 0) {
+        setHarvestSchedules([]);
+        return;
+      }
 
-//       setTimeout(() => {
-//         // Create mock reports based on crops that have been harvested
-//         if (crops.length > 0) {
-//           const mockReports = crops
-//             .filter((crop) => crop.status === "Harvested")
-//             .map((crop) => {
-//               const plot = plots.find((p) => p.plot_id === crop.plot_id);
-//               return {
-//                 report_id: `R${crop.crop_id}`,
-//                 crop_id: crop.crop_id,
-//                 crop_name: crop.name,
-//                 variety: crop.variety || "Standard",
-//                 plot_id: crop.plot_id,
-//                 plot_location: plot?.location || "Unknown",
-//                 planting_date: crop.planting_date,
-//                 harvest_date: crop.harvest_date,
-//                 yield_amount: Math.floor(Math.random() * 500) + 200, // Mock yield in kg
-//                 yield_quality: ["Excellent", "Good", "Average"][
-//                   Math.floor(Math.random() * 3)
-//                 ],
-//                 notes: "Regular harvest with standard processing.",
-//                 created_at: new Date(),
-//               };
-//             });
+      const allSchedules = [];
 
-//           setReports(mockReports);
-//         }
-//         setIsReportsLoading(false);
-//       }, 800);
-//     } catch (error) {
-//       console.error("Error fetching reports:", error);
-//       setError("Failed to load yield reports");
-//       toast.error("Failed to load yield reports");
-//       setIsReportsLoading(false);
-//     }
-//   };
+      // Fetch schedules for each plot
+      for (const plot of plots) {
+        const response = await fetch(
+          `http://localhost:3000/api/harvest-schedules/plot/${plot.plot_id}`
+        );
 
-//   // Handle viewing plot details
-//   const handleViewPlotDetails = (plot) => {
-//     setSelectedPlot(plot);
-//     setPlotDetailsOpen(true);
-//   };
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            allSchedules.push(...data.data);
+          }
+        }
+      }
 
-//   // Check if user is a farmer
-//   const isFarmer = user?.publicMetadata?.role === "farmer";
+      setHarvestSchedules(allSchedules);
+    } catch (error) {
+      console.error("Error fetching harvest schedules:", error);
+      toast.error("Failed to load your harvest schedules");
+    } finally {
+      setIsSchedulesLoading(false);
+    }
+  };
 
-//   if (!isFarmer) {
-//     return (
-//       <div className="flex items-center justify-center min-h-screen">
-//         <Card className="w-[450px] text-center">
-//           <CardHeader>
-//             <CardTitle>Access Denied</CardTitle>
-//             <CardDescription>
-//               You don't have permission to view this page.
-//             </CardDescription>
-//           </CardHeader>
-//           <CardContent>
-//             <p>
-//               Please contact an administrator if you believe this is an error.
-//             </p>
-//           </CardContent>
-//         </Card>
-//       </div>
-//     );
-//   }
+  // Function to fetch crop rotations for this farmer's plots
+  const fetchFarmerCropRotations = async () => {
+    setIsRotationsLoading(true);
+    try {
+      if (plots.length === 0) {
+        setCropRotations([]);
+        return;
+      }
 
-//   // Format date or return placeholder
-//   const formatDate = (dateString) => {
-//     if (!dateString) return "Not scheduled";
-//     return format(new Date(dateString), "MMM d, yyyy");
-//   };
+      const allRotations = [];
 
-//   // Get crop status badge
-//   const getCropStatusBadge = (status) => {
-//     const colors = {
-//       Planted: "bg-blue-500",
-//       Growing: "bg-green-500",
-//       Harvested: "bg-amber-500",
-//     };
+      // Fetch rotations for each plot
+      for (const plot of plots) {
+        const response = await fetch(
+          `http://localhost:3000/api/crop-rotations/plot/${plot.plot_id}`
+        );
 
-//     return (
-//       <Badge className={`${colors[status] || "bg-gray-500"}`}>{status}</Badge>
-//     );
-//   };
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            allRotations.push(...data.data);
+          }
+        }
+      }
 
-//   // Get plot status badge
-//   const getPlotStatusBadge = (status) => {
-//     const colors = {
-//       active: "bg-green-500",
-//       inactive: "bg-gray-500",
-//       pending: "bg-yellow-500",
-//     };
+      setCropRotations(allRotations);
+    } catch (error) {
+      console.error("Error fetching crop rotations:", error);
+      toast.error("Failed to load your crop rotations");
+    } finally {
+      setIsRotationsLoading(false);
+    }
+  };
 
-//     return (
-//       <Badge className={`${colors[status] || "bg-gray-500"}`}>{status}</Badge>
-//     );
-//   };
+  // Function to fetch activity logs for this farmer's plots
+  const fetchFarmerActivityLogs = async () => {
+    setIsActivitiesLoading(true);
+    try {
+      if (plots.length === 0) {
+        setActivityLogs([]);
+        return;
+      }
 
-//   // Get soil type badge
-//   const getSoilTypeBadge = (soilType) => {
-//     const colors = {
-//       clay: "bg-amber-500",
-//       sandy: "bg-yellow-200",
-//       loamy: "bg-green-700",
-//       silt: "bg-blue-700",
-//       peat: "bg-brown-700",
-//     };
+      const allActivities = [];
 
-//     return (
-//       <Badge className={`${colors[soilType] || "bg-gray-500"}`}>
-//         {soilType}
-//       </Badge>
-//     );
-//   };
+      // Fetch activities for each plot
+      for (const plot of plots) {
+        const response = await fetch(
+          `http://localhost:3000/api/activity-logs/plot/${plot.plot_id}`
+        );
 
-//   // Calculate days until harvest for a crop
-//   const getDaysUntilHarvest = (harvestDate) => {
-//     if (!harvestDate) return null;
+        if (response.ok) {
+          const data = await response.json();
+          if (data.data && data.data.length > 0) {
+            allActivities.push(...data.data);
+          }
+        }
+      }
 
-//     const today = new Date();
-//     const harvest = new Date(harvestDate);
-//     const diffTime = Math.abs(harvest - today);
-//     const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+      setActivityLogs(allActivities);
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      toast.error("Failed to load your activity logs");
+    } finally {
+      setIsActivitiesLoading(false);
+    }
+  };
 
-//     return harvest > today ? diffDays : null;
-//   };
+  // Format date or return placeholder
+  const formatDate = (dateString) => {
+    if (!dateString) return "Not scheduled";
+    return format(new Date(dateString), "MMM d, yyyy");
+  };
 
-//   // If there's a critical error, show error state
-//   if (error && !plots.length && !crops.length) {
-//     return (
-//       <div className="container mx-auto py-6 px-4">
-//         <div className="bg-red-50 border border-red-200 rounded-md p-6 text-center">
-//           <h2 className="text-xl font-bold text-red-700 mb-2">
-//             Something went wrong
-//           </h2>
-//           <p className="text-red-600 mb-4">
-//             We encountered an error while loading your dashboard data.
-//           </p>
-//           <p className="text-gray-600 mb-4">Error details: {error}</p>
-//           <Button
-//             onClick={() => window.location.reload()}
-//             className="bg-red-600 hover:bg-red-700 text-white"
-//           >
-//             Try Again
-//           </Button>
-//         </div>
-//       </div>
-//     );
-//   }
+  // Get soil type badge
+  const getSoilTypeBadge = (soilType) => {
+    const colors = {
+      clay: "bg-amber-500",
+      sandy: "bg-yellow-200",
+      loamy: "bg-green-700",
+      silt: "bg-blue-700",
+      peat: "bg-brown-700",
+    };
 
-//   return (
-//     <div className="container mx-auto py-6 px-4">
-//       <div className="flex justify-between items-center mb-6">
-//         <h1 className="text-3xl font-bold tracking-tight">Farmer Dashboard</h1>
-//         <div className="text-sm text-muted-foreground">
-//           Welcome back, {user?.firstName || "Farmer"}
-//         </div>
-//       </div>
+    return (
+      <Badge className={`${colors[soilType] || "bg-gray-500"}`}>
+        {soilType}
+      </Badge>
+    );
+  };
 
-//       {/* Dashboard Tabs */}
-//       <Tabs
-//         defaultValue="overview"
-//         value={activeTab}
-//         onValueChange={setActiveTab}
-//         className="mb-6"
-//       >
-//         <TabsList className="grid grid-cols-4 w-[550px]">
-//           <TabsTrigger value="overview">
-//             <LayoutDashboard className="h-4 w-4 mr-2" />
-//             Overview
-//           </TabsTrigger>
-//           <TabsTrigger value="myplots">
-//             <Map className="h-4 w-4 mr-2" />
-//             My Plots
-//           </TabsTrigger>
-//           <TabsTrigger value="crops">
-//             <Sprout className="h-4 w-4 mr-2" />
-//             Crop Timeline
-//           </TabsTrigger>
-//           <TabsTrigger value="reports">
-//             <BarChart className="h-4 w-4 mr-2" />
-//             Yield Reports
-//           </TabsTrigger>
-//         </TabsList>
+  // Get crop status badge
+  const getCropStatusBadge = (status) => {
+    const colors = {
+      Planted: "bg-blue-500",
+      Growing: "bg-green-500",
+      Harvested: "bg-amber-500",
+    };
 
-//         {/* Overview Tab Content */}
-//         <TabsContent value="overview" className="space-y-4">
-//           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5">
-//             <Card>
-//               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-//                 <CardTitle className="text-sm font-medium">My Plots</CardTitle>
-//                 <Map className="h-4 w-4 text-muted-foreground" />
-//               </CardHeader>
-//               <CardContent>
-//                 <div className="text-2xl font-bold">
-//                   {dashboardStats.totalPlots}
-//                 </div>
-//                 <p className="text-xs text-muted-foreground">
-//                   {dashboardStats.activePlots} active plots
-//                 </p>
-//               </CardContent>
-//             </Card>
+    return (
+      <Badge className={`${colors[status] || "bg-gray-500"}`}>{status}</Badge>
+    );
+  };
 
-//             <Card>
-//               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-//                 <CardTitle className="text-sm font-medium">
-//                   Total Area
-//                 </CardTitle>
-//                 <PieChart className="h-4 w-4 text-muted-foreground" />
-//               </CardHeader>
-//               <CardContent>
-//                 <div className="text-2xl font-bold">
-//                   {dashboardStats.totalArea} acres
-//                 </div>
-//                 <p className="text-xs text-muted-foreground">
-//                   Land under management
-//                 </p>
-//               </CardContent>
-//             </Card>
+  // Check if user is a farmer
+  if (isUserLoaded && !isRole) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <Card className="w-[450px] text-center">
+          <CardHeader>
+            <CardTitle>Access Denied</CardTitle>
+            <CardDescription>
+              You don't have permission to view this page.
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p>
+              This page is for farmers only. Please contact an administrator if
+              you believe this is an error.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-//             <Card>
-//               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-//                 <CardTitle className="text-sm font-medium">
-//                   Crops Planted
-//                 </CardTitle>
-//                 <Sprout className="h-4 w-4 text-muted-foreground" />
-//               </CardHeader>
-//               <CardContent>
-//                 <div className="text-2xl font-bold">
-//                   {dashboardStats.cropsPlanted}
-//                 </div>
-//                 <p className="text-xs text-muted-foreground">
-//                   Across all plots
-//                 </p>
-//               </CardContent>
-//             </Card>
+  // Handle loading state
+  if (!isUserLoaded || isLoading) {
+    return (
+      <div className="flex justify-center items-center min-h-screen">
+        <Loader2 className="h-8 w-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
-//             <Card>
-//               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-//                 <CardTitle className="text-sm font-medium">
-//                   Upcoming Harvests
-//                 </CardTitle>
-//                 <Calendar className="h-4 w-4 text-muted-foreground" />
-//               </CardHeader>
-//               <CardContent>
-//                 <div className="text-2xl font-bold">
-//                   {dashboardStats.upcomingHarvests}
-//                 </div>
-//                 <p className="text-xs text-muted-foreground">
-//                   Scheduled for harvest
-//                 </p>
-//               </CardContent>
-//             </Card>
+  // Handle no plots found
+  if (isUserLoaded && plots.length === 0) {
+    return (
+      <div className="container mx-auto py-6 px-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Welcome, {user.firstName || "Farmer"}</CardTitle>
+            <CardDescription>Farmer Dashboard</CardDescription>
+          </CardHeader>
+          <CardContent className="text-center py-8">
+            <Info className="h-16 w-16 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-medium mb-2">No plots assigned yet</h3>
+            <p className="text-muted-foreground">
+              You don't have any plots assigned to you yet. Please contact an
+              administrator to get started.
+            </p>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
-//             <Card>
-//               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-//                 <CardTitle className="text-sm font-medium">
-//                   Next Harvest
-//                 </CardTitle>
-//                 <Calendar className="h-4 w-4 text-muted-foreground" />
-//               </CardHeader>
-//               <CardContent>
-//                 {crops.filter(
-//                   (c) => c.harvest_date && new Date(c.harvest_date) > new Date()
-//                 ).length > 0 ? (
-//                   <>
-//                     <div className="text-2xl font-bold">
-//                       {format(
-//                         new Date(
-//                           Math.min(
-//                             ...crops
-//                               .filter(
-//                                 (c) =>
-//                                   c.harvest_date &&
-//                                   new Date(c.harvest_date) > new Date()
-//                               )
-//                               .map((c) => new Date(c.harvest_date))
-//                           )
-//                         ),
-//                         "MMM dd"
-//                       )}
-//                     </div>
-//                     <p className="text-xs text-muted-foreground">
-//                       Days until next harvest:{" "}
-//                       {getDaysUntilHarvest(
-//                         Math.min(
-//                           ...crops
-//                             .filter(
-//                               (c) =>
-//                                 c.harvest_date &&
-//                                 new Date(c.harvest_date) > new Date()
-//                             )
-//                             .map((c) => new Date(c.harvest_date))
-//                         )
-//                       )}
-//                     </p>
-//                   </>
-//                 ) : (
-//                   <>
-//                     <div className="text-2xl font-bold">None</div>
-//                     <p className="text-xs text-muted-foreground">
-//                       No harvests scheduled
-//                     </p>
-//                   </>
-//                 )}
-//               </CardContent>
-//             </Card>
-//           </div>
+  return (
+    <div className="container mx-auto py-6 px-4">
+      <div className="flex justify-between items-center mb-6">
+        <div>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Farmer Dashboard
+          </h1>
+          <p className="text-muted-foreground">
+            Welcome back, {user.firstName || farmerId}
+          </p>
+        </div>
+      </div>
 
-//           <div className="grid gap-4 md:grid-cols-2">
-//             <Card className="col-span-1">
-//               <CardHeader>
-//                 <CardTitle>Upcoming Harvests</CardTitle>
-//                 <CardDescription>Crops scheduled for harvest</CardDescription>
-//               </CardHeader>
-//               <CardContent>
-//                 {isCropsLoading ? (
-//                   <div className="flex justify-center items-center py-8">
-//                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//                   </div>
-//                 ) : crops.filter(
-//                     (crop) =>
-//                       crop.harvest_date &&
-//                       new Date(crop.harvest_date) > new Date()
-//                   ).length === 0 ? (
-//                   <div className="text-center py-8 text-muted-foreground">
-//                     No upcoming harvests scheduled.
-//                   </div>
-//                 ) : (
-//                   <ScrollArea className="h-[250px]">
-//                     <div className="space-y-4">
-//                       {crops
-//                         .filter(
-//                           (crop) =>
-//                             crop.harvest_date &&
-//                             new Date(crop.harvest_date) > new Date()
-//                         )
-//                         .sort(
-//                           (a, b) =>
-//                             new Date(a.harvest_date) - new Date(b.harvest_date)
-//                         )
-//                         .slice(0, 5)
-//                         .map((crop) => {
-//                           const plot = plots.find(
-//                             (p) => p.plot_id === crop.plot_id
-//                           );
-//                           const daysUntil = getDaysUntilHarvest(
-//                             crop.harvest_date
-//                           );
+      {/* Dashboard Tabs */}
+      <Tabs
+        defaultValue="overview"
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="mb-6"
+      >
+        <TabsList className="grid grid-cols-6 w-[800px]">
+          <TabsTrigger value="overview">
+            <LayoutDashboard className="h-4 w-4 mr-2" />
+            Overview
+          </TabsTrigger>
+          <TabsTrigger value="plots">
+            <Map className="h-4 w-4 mr-2" />
+            Plots
+          </TabsTrigger>
+          <TabsTrigger value="crops">
+            <Sprout className="h-4 w-4 mr-2" />
+            Crops
+          </TabsTrigger>
+          <TabsTrigger value="schedule">
+            <Calendar className="h-4 w-4 mr-2" />
+            Schedules
+          </TabsTrigger>
+          <TabsTrigger value="rotations">
+            <RotateCw className="h-4 w-4 mr-2" />
+            Rotations
+          </TabsTrigger>
+          <TabsTrigger value="activities">
+            <Droplets className="h-4 w-4 mr-2" />
+            Activities
+          </TabsTrigger>
+        </TabsList>
 
-//                           return (
-//                             <div
-//                               key={crop.crop_id}
-//                               className="flex items-center p-4 border rounded-lg"
-//                             >
-//                               <div className="mr-4 bg-green-100 p-2 rounded-full">
-//                                 <Sprout className="h-5 w-5 text-green-600" />
-//                               </div>
-//                               <div className="flex-1">
-//                                 <div className="font-medium">
-//                                   {crop.name}{" "}
-//                                   {crop.variety ? `(${crop.variety})` : ""}
-//                                 </div>
-//                                 <div className="text-sm text-muted-foreground">
-//                                   Plot: {plot?.location || crop.plot_id}
-//                                 </div>
-//                               </div>
-//                               <div className="text-right">
-//                                 <div className="font-medium">
-//                                   {formatDate(crop.harvest_date)}
-//                                 </div>
-//                                 <div className="text-sm text-muted-foreground">
-//                                   {daysUntil} days remaining
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           );
-//                         })}
-//                     </div>
-//                   </ScrollArea>
-//                 )}
-//               </CardContent>
-//             </Card>
+        {/* Overview Tab Content */}
+        <TabsContent value="overview" className="space-y-4">
+          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">My Plots</CardTitle>
+                <Map className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {dashboardStats.totalPlots}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {dashboardStats.activePlots} active plots
+                </p>
+              </CardContent>
+            </Card>
 
-//             <Card className="col-span-1">
-//               <CardHeader>
-//                 <CardTitle>Recently Planted</CardTitle>
-//                 <CardDescription>
-//                   Crops recently planted in your plots
-//                 </CardDescription>
-//               </CardHeader>
-//               <CardContent>
-//                 {isCropsLoading ? (
-//                   <div className="flex justify-center items-center py-8">
-//                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//                   </div>
-//                 ) : crops.length === 0 ? (
-//                   <div className="text-center py-8 text-muted-foreground">
-//                     No crops planted yet.
-//                   </div>
-//                 ) : (
-//                   <ScrollArea className="h-[250px]">
-//                     <div className="space-y-4">
-//                       {crops
-//                         .sort(
-//                           (a, b) =>
-//                             new Date(b.planting_date) -
-//                             new Date(a.planting_date)
-//                         )
-//                         .slice(0, 5)
-//                         .map((crop) => {
-//                           const plot = plots.find(
-//                             (p) => p.plot_id === crop.plot_id
-//                           );
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Total Area
+                </CardTitle>
+                <PieChart className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {dashboardStats.totalArea} acres
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Across {dashboardStats.totalPlots} plots
+                </p>
+              </CardContent>
+            </Card>
 
-//                           return (
-//                             <div
-//                               key={crop.crop_id}
-//                               className="flex items-center p-4 border rounded-lg"
-//                             >
-//                               <div className="mr-4 bg-blue-100 p-2 rounded-full">
-//                                 <Sprout className="h-5 w-5 text-blue-600" />
-//                               </div>
-//                               <div className="flex-1">
-//                                 <div className="font-medium">
-//                                   {crop.name}{" "}
-//                                   {crop.variety ? `(${crop.variety})` : ""}
-//                                 </div>
-//                                 <div className="text-sm text-muted-foreground">
-//                                   Plot: {plot?.location || crop.plot_id}
-//                                 </div>
-//                               </div>
-//                               <div className="text-right">
-//                                 <div className="font-medium">
-//                                   {formatDate(crop.planting_date)}
-//                                 </div>
-//                                 <div className="text-sm">
-//                                   {getCropStatusBadge(crop.status)}
-//                                 </div>
-//                               </div>
-//                             </div>
-//                           );
-//                         })}
-//                     </div>
-//                   </ScrollArea>
-//                 )}
-//               </CardContent>
-//             </Card>
-//           </div>
-//         </TabsContent>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Crop Types
+                </CardTitle>
+                <Sprout className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">
+                  {dashboardStats.cropTypes}
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Currently in cultivation
+                </p>
+              </CardContent>
+            </Card>
 
-//         {/* My Plots Tab Content */}
-//         <TabsContent value="myplots">
-//           <Card>
-//             <CardHeader>
-//               <CardTitle>My Plots</CardTitle>
-//               <CardDescription>
-//                 Manage and monitor your leased plots
-//               </CardDescription>
-//             </CardHeader>
-//             <CardContent>
-//               {isLoading ? (
-//                 <div className="flex justify-center items-center py-8">
-//                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//                 </div>
-//               ) : (
-//                 <div className="rounded-md border">
-//                   <Table>
-//                     <TableHeader>
-//                       <TableRow>
-//                         <TableHead>Plot ID</TableHead>
-//                         <TableHead>Location</TableHead>
-//                         <TableHead>Size (acres)</TableHead>
-//                         <TableHead>Soil Type</TableHead>
-//                         <TableHead>Lease Period</TableHead>
-//                         <TableHead>Status</TableHead>
-//                         <TableHead>Actions</TableHead>
-//                       </TableRow>
-//                     </TableHeader>
-//                     <TableBody>
-//                       {plots.length === 0 ? (
-//                         <TableRow>
-//                           <TableCell colSpan={7} className="h-24 text-center">
-//                             No plots found. Please contact an administrator to
-//                             assign plots to you.
-//                           </TableCell>
-//                         </TableRow>
-//                       ) : (
-//                         plots.map((plot) => (
-//                           <TableRow key={plot.plot_id}>
-//                             <TableCell className="font-medium">
-//                               {plot.plot_id}
-//                             </TableCell>
-//                             <TableCell>{plot.location}</TableCell>
-//                             <TableCell>{plot.size}</TableCell>
-//                             <TableCell>
-//                               {getSoilTypeBadge(plot.soil_type)}
-//                             </TableCell>
-//                             <TableCell>
-//                               {format(
-//                                 new Date(plot.lease_start),
-//                                 "MMM d, yyyy"
-//                               )}{" "}
-//                               -{format(new Date(plot.lease_end), "MMM d, yyyy")}
-//                             </TableCell>
-//                             <TableCell>
-//                               {getPlotStatusBadge(plot.status)}
-//                             </TableCell>
-//                             <TableCell>
-//                               <Button
-//                                 variant="ghost"
-//                                 size="sm"
-//                                 onClick={() => handleViewPlotDetails(plot)}
-//                               >
-//                                 <Info className="h-4 w-4 mr-1" /> Details
-//                               </Button>
-//                             </TableCell>
-//                           </TableRow>
-//                         ))
-//                       )}
-//                     </TableBody>
-//                   </Table>
-//                 </div>
-//               )}
-//             </CardContent>
-//           </Card>
-//         </TabsContent>
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                <CardTitle className="text-sm font-medium">
+                  Next Harvest
+                </CardTitle>
+                <Calendar className="h-4 w-4 text-muted-foreground" />
+              </CardHeader>
+              <CardContent>
+                {harvestSchedules && harvestSchedules.length > 0 ? (
+                  <>
+                    <div className="text-2xl font-bold">
+                      {formatDate(harvestSchedules[0].expected_harvest_date)
+                        .split(" ")
+                        .slice(0, 2)
+                        .join(" ")}
+                    </div>
+                    <p className="text-xs text-muted-foreground">
+                      {harvestSchedules.length} scheduled harvests
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-2xl font-bold">No data</div>
+                    <p className="text-xs text-muted-foreground">
+                      No upcoming harvests
+                    </p>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          </div>
 
-//         {/* Crop Timeline Tab Content */}
-//         <TabsContent value="crops">
-//           <Card>
-//             <CardHeader>
-//               <CardTitle>Crop Timeline</CardTitle>
-//               <CardDescription>
-//                 Overview of planting and harvest schedules
-//               </CardDescription>
-//             </CardHeader>
-//             <CardContent>
-//               {isCropsLoading ? (
-//                 <div className="flex justify-center items-center py-8">
-//                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//                 </div>
-//               ) : crops.length === 0 ? (
-//                 <div className="text-center py-8 text-muted-foreground">
-//                   No crops found. Once you plant crops, they will appear here.
-//                 </div>
-//               ) : (
-//                 <div>
-//                   {/* Simple Gantt Chart */}
-//                   <div className="mt-4 space-y-6">
-//                     <div className="flex items-center text-xs text-muted-foreground mb-2">
-//                       <div className="w-[200px]">Crop</div>
-//                       <div className="flex-1 flex">
-//                         {Array.from({ length: 12 }).map((_, i) => (
-//                           <div
-//                             key={i}
-//                             className="flex-1 text-center border-l border-gray-200"
-//                           >
-//                             {format(
-//                               new Date(new Date().getFullYear(), i, 1),
-//                               "MMM"
-//                             )}
-//                           </div>
-//                         ))}
-//                       </div>
-//                     </div>
+          <Card>
+            <CardHeader>
+              <CardTitle>Recent Activity</CardTitle>
+              <CardDescription>Recent activities on your plots</CardDescription>
+            </CardHeader>
+            <CardContent>
+              {activityLogs && activityLogs.length > 0 ? (
+                <div className="space-y-4">
+                  {activityLogs.slice(0, 3).map((log) => (
+                    <div key={log.activity_id} className="flex items-center">
+                      <div
+                        className={`mr-4 p-2 rounded-full ${
+                          log.type === "Irrigation"
+                            ? "bg-blue-100"
+                            : "bg-green-100"
+                        }`}
+                      >
+                        {log.type === "Irrigation" ? (
+                          <Droplets className="h-5 w-5 text-blue-600" />
+                        ) : (
+                          <Sprout className="h-5 w-5 text-green-600" />
+                        )}
+                      </div>
+                      <div className="space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {log.type} on Plot {log.plot_id}
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          {formatDate(log.date)}
+                        </p>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-4">
+                  No recent activities found
+                </p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-//                     {crops.map((crop) => {
-//                       const plantingDate = new Date(crop.planting_date);
-//                       const harvestDate = crop.harvest_date
-//                         ? new Date(crop.harvest_date)
-//                         : new Date(
-//                             plantingDate.getTime() + 90 * 24 * 60 * 60 * 1000
-//                           ); // default 90 days growth if no harvest date
+        {/* Plots Tab Content */}
+        <TabsContent value="plots">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Plots</CardTitle>
+              <CardDescription>
+                View all your assigned plots and their details
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="rounded-md border">
+                <Table>
+                  <TableHeader>
+                    <TableRow>
+                      <TableHead>Plot ID</TableHead>
+                      <TableHead>Size (acres)</TableHead>
+                      <TableHead>Location</TableHead>
+                      <TableHead>Soil Type</TableHead>
+                      <TableHead>Lease Period</TableHead>
+                      <TableHead>Status</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {plots.map((plot) => (
+                      <TableRow key={plot.plot_id}>
+                        <TableCell className="font-medium">
+                          {plot.plot_id}
+                        </TableCell>
+                        <TableCell>{plot.size}</TableCell>
+                        <TableCell>{plot.location}</TableCell>
+                        <TableCell>
+                          {getSoilTypeBadge(plot.soil_type)}
+                        </TableCell>
+                        <TableCell>
+                          {formatDate(plot.lease_start)} -{" "}
+                          {formatDate(plot.lease_end)}
+                        </TableCell>
+                        <TableCell>
+                          <Badge
+                            variant={
+                              plot.status === "active" ? "default" : "secondary"
+                            }
+                          >
+                            {plot.status}
+                          </Badge>
+                        </TableCell>
+                      </TableRow>
+                    ))}
+                  </TableBody>
+                </Table>
+              </div>
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-//                       const currentYear = new Date().getFullYear();
-//                       const startMonth = plantingDate.getMonth();
-//                       const endMonth = harvestDate.getMonth();
+        {/* Crops Tab Content */}
+        <TabsContent value="crops">
+          <Card>
+            <CardHeader>
+              <CardTitle>My Crops</CardTitle>
+              <CardDescription>
+                View all crops planted in your plots
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isCropsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Name</TableHead>
+                        <TableHead>Variety</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Planting Date</TableHead>
+                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead>Status</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {crops.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center">
+                            No crops found for your plots.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        crops.map((crop) => (
+                          <TableRow key={crop.crop_id}>
+                            <TableCell className="font-medium">
+                              {crop.name}
+                            </TableCell>
+                            <TableCell>{crop.variety || "N/A"}</TableCell>
+                            <TableCell>{crop.plot_id}</TableCell>
+                            <TableCell>
+                              {formatDate(crop.planting_date)}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(crop.harvest_date)}
+                            </TableCell>
+                            <TableCell>
+                              {getCropStatusBadge(crop.status)}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-//                       const startPercentage = (startMonth / 12) * 100;
-//                       const duration =
-//                         endMonth >= startMonth
-//                           ? endMonth - startMonth + harvestDate.getDate() / 30
-//                           : 12 -
-//                             startMonth +
-//                             endMonth +
-//                             harvestDate.getDate() / 30;
-//                       const widthPercentage = (duration / 12) * 100;
+        {/* Harvest Schedule Tab Content */}
+        <TabsContent value="schedule">
+          <Card>
+            <CardHeader>
+              <CardTitle>Harvest Schedules</CardTitle>
+              <CardDescription>
+                View upcoming harvests for your plots
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isSchedulesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Crop</TableHead>
+                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead>Actual Harvest</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {harvestSchedules.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="h-24 text-center">
+                            No harvest schedules found for your plots.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        harvestSchedules.map((schedule) => (
+                          <TableRow key={schedule.schedule_id}>
+                            <TableCell>{schedule.plot_id}</TableCell>
+                            <TableCell>
+                              {schedule.crop?.name ||
+                                `Crop #${schedule.crop_id}`}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(schedule.expected_harvest_date)}
+                            </TableCell>
+                            <TableCell>
+                              {schedule.actual_harvest_date ? (
+                                formatDate(schedule.actual_harvest_date)
+                              ) : (
+                                <Badge variant="outline">Not harvested</Badge>
+                              )}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-//                       const plot = plots.find(
-//                         (p) => p.plot_id === crop.plot_id
-//                       );
+        {/* Crop Rotation Tab Content */}
+        <TabsContent value="rotations">
+          <Card>
+            <CardHeader>
+              <CardTitle>Crop Rotations</CardTitle>
+              <CardDescription>
+                View crop rotation plans for your plots
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isRotationsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Previous Crop</TableHead>
+                        <TableHead>Next Crop</TableHead>
+                        <TableHead>Rotation Date</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cropRotations.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="h-24 text-center">
+                            No crop rotations found for your plots.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        cropRotations.map((rotation) => (
+                          <TableRow key={rotation.rotation_id}>
+                            <TableCell>{rotation.plot_id}</TableCell>
+                            <TableCell>{rotation.previous_crop}</TableCell>
+                            <TableCell>{rotation.next_crop}</TableCell>
+                            <TableCell>
+                              {formatDate(rotation.rotation_date)}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
 
-//                       return (
-//                         <div
-//                           key={crop.crop_id}
-//                           className="flex items-center h-12"
-//                         >
-//                           <div className="w-[200px] flex items-center">
-//                             <div className="font-medium truncate">
-//                               {crop.name}{" "}
-//                               {crop.variety ? `(${crop.variety})` : ""}
-//                               <div className="text-xs text-muted-foreground">
-//                                 {plot?.location || crop.plot_id}
-//                               </div>
-//                             </div>
-//                           </div>
-//                           <div className="flex-1 relative h-6">
-//                             <div
-//                               className="absolute h-6 rounded-md bg-green-600 bg-opacity-80 flex items-center justify-center text-xs text-white"
-//                               style={{
-//                                 left: `${startPercentage}%`,
-//                                 width: `${widthPercentage}%`,
-//                               }}
-//                             >
-//                               {crop.name}
-//                             </div>
-//                           </div>
-//                         </div>
-//                       );
-//                     })}
-//                   </div>
+        {/* Activity Logs Tab Content */}
+        <TabsContent value="activities">
+          <Card>
+            <CardHeader>
+              <CardTitle>Activity Logs</CardTitle>
+              <CardDescription>
+                View all activities performed on your plots
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {isActivitiesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Activity Type</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Notes</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {activityLogs.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={4} className="h-24 text-center">
+                            No activity logs found for your plots.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        activityLogs.map((activity) => (
+                          <TableRow key={activity.activity_id}>
+                            <TableCell>{activity.plot_id}</TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  activity.type === "Irrigation"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {activity.type}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(activity.date)}</TableCell>
+                            <TableCell className="max-w-[300px] truncate">
+                              {activity.notes || "No notes"}
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+}
 
-//                   {/* Crop List with Details */}
-//                   <div className="mt-10 border rounded-md">
-//                     <Table>
-//                       <TableHeader>
-//                         <TableRow>
-//                           <TableHead>Crop</TableHead>
-//                           <TableHead>Plot</TableHead>
-//                           <TableHead>Planting Date</TableHead>
-//                           <TableHead>Harvest Date</TableHead>
-//                           <TableHead>Days Remaining</TableHead>
-//                           <TableHead>Status</TableHead>
-//                         </TableRow>
-//                       </TableHeader>
-//                       <TableBody>
-//                         {crops.map((crop) => {
-//                           const plot = plots.find(
-//                             (p) => p.plot_id === crop.plot_id
-//                           );
-//                           const daysUntil = getDaysUntilHarvest(
-//                             crop.harvest_date
-//                           );
-
-//                           return (
-//                             <TableRow key={crop.crop_id}>
-//                               <TableCell>
-//                                 <div className="font-medium">{crop.name}</div>
-//                                 <div className="text-xs text-muted-foreground">
-//                                   {crop.variety || "Standard"}
-//                                 </div>
-//                               </TableCell>
-//                               <TableCell>
-//                                 {plot?.location || crop.plot_id}
-//                               </TableCell>
-//                               <TableCell>
-//                                 {formatDate(crop.planting_date)}
-//                               </TableCell>
-//                               <TableCell>
-//                                 {formatDate(crop.harvest_date)}
-//                               </TableCell>
-//                               <TableCell>
-//                                 {daysUntil
-//                                   ? `${daysUntil} days`
-//                                   : crop.status === "Harvested"
-//                                   ? "Complete"
-//                                   : "Unknown"}
-//                               </TableCell>
-//                               <TableCell>
-//                                 {getCropStatusBadge(crop.status)}
-//                               </TableCell>
-//                             </TableRow>
-//                           );
-//                         })}
-//                       </TableBody>
-//                     </Table>
-//                   </div>
-//                 </div>
-//               )}
-//             </CardContent>
-//           </Card>
-//         </TabsContent>
-
-//         {/* Yield Reports Tab Content - New Tab */}
-//         <TabsContent value="reports">
-//           <Card>
-//             <CardHeader className="flex flex-row items-center justify-between">
-//               <div>
-//                 <CardTitle>Yield Reports</CardTitle>
-//                 <CardDescription>
-//                   Historical data and yield metrics for your harvests
-//                 </CardDescription>
-//               </div>
-//               <Button variant="outline" size="sm">
-//                 <Download className="h-4 w-4 mr-2" /> Export Data
-//               </Button>
-//             </CardHeader>
-//             <CardContent>
-//               {isReportsLoading ? (
-//                 <div className="flex justify-center items-center py-8">
-//                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
-//                 </div>
-//               ) : reports.length === 0 ? (
-//                 <div className="text-center py-8 text-muted-foreground">
-//                   {crops.length === 0
-//                     ? "No crops found. Plant crops to generate reports."
-//                     : "No harvest reports available yet. Reports are generated after crops are harvested."}
-//                 </div>
-//               ) : (
-//                 <>
-//                   {/* Yield Summary Cards */}
-//                   <div className="grid gap-4 md:grid-cols-3 mb-6">
-//                     <Card>
-//                       <CardHeader className="pb-2">
-//                         <CardTitle className="text-sm">Total Yield</CardTitle>
-//                       </CardHeader>
-//                       <CardContent>
-//                         <div className="text-2xl font-bold">
-//                           {reports.reduce(
-//                             (sum, report) => sum + report.yield_amount,
-//                             0
-//                           )}{" "}
-//                           kg
-//                         </div>
-//                       </CardContent>
-//                     </Card>
-
-//                     <Card>
-//                       <CardHeader className="pb-2">
-//                         <CardTitle className="text-sm">
-//                           Harvests Completed
-//                         </CardTitle>
-//                       </CardHeader>
-//                       <CardContent>
-//                         <div className="text-2xl font-bold">
-//                           {reports.length}
-//                         </div>
-//                       </CardContent>
-//                     </Card>
-
-//                     <Card>
-//                       <CardHeader className="pb-2">
-//                         <CardTitle className="text-sm">Average Yield</CardTitle>
-//                       </CardHeader>
-//                       <CardContent>
-//                         <div className="text-2xl font-bold">
-//                           {(
-//                             reports.reduce(
-//                               (sum, report) => sum + report.yield_amount,
-//                               0
-//                             ) / reports.length
-//                           ).toFixed(2)}{" "}
-//                           kg
-//                         </div>
-//                       </CardContent>
-//                     </Card>
-//                   </div>
-
-//                   {/* Reports Table */}
-//                   <div className="rounded-md border">
-//                     <Table>
-//                       <TableHeader>
-//                         <TableRow>
-//                           <TableHead>Crop</TableHead>
-//                           <TableHead>Plot</TableHead>
-//                           <TableHead>Harvest Date</TableHead>
-//                           <TableHead>Yield</TableHead>
-//                           <TableHead>Quality</TableHead>
-//                         </TableRow>
-//                       </TableHeader>
-//                       <TableBody>
-//                         {reports.map((report) => (
-//                           <TableRow key={report.report_id}>
-//                             <TableCell>
-//                               <div className="font-medium">
-//                                 {report.crop_name}
-//                               </div>
-//                               <div className="text-xs text-muted-foreground">
-//                                 {report.variety || "Standard"}
-//                               </div>
-//                             </TableCell>
-//                             <TableCell>{report.plot_location}</TableCell>
-//                             <TableCell>
-//                               {formatDate(report.harvest_date)}
-//                             </TableCell>
-//                             <TableCell>{report.yield_amount} kg</TableCell>
-//                             <TableCell>
-//                               <Badge
-//                                 className={
-//                                   report.yield_quality === "Excellent"
-//                                     ? "bg-green-500"
-//                                     : report.yield_quality === "Good"
-//                                     ? "bg-blue-500"
-//                                     : "bg-yellow-500"
-//                                 }
-//                               >
-//                                 {report.yield_quality}
-//                               </Badge>
-//                             </TableCell>
-//                           </TableRow>
-//                         ))}
-//                       </TableBody>
-//                     </Table>
-//                   </div>
-
-//                   {/* Yield Trends */}
-//                   <div className="mt-8">
-//                     <h3 className="text-lg font-medium mb-4">Yield Trends</h3>
-//                     <div className="h-60 bg-gray-50 border rounded-md flex items-center justify-center">
-//                       <div className="text-center text-muted-foreground">
-//                         <FileText className="h-8 w-8 mx-auto mb-2 text-gray-400" />
-//                         <p>Yield trend charts will appear here</p>
-//                         <p className="text-xs">
-//                           Charts are generated after multiple harvests
-//                         </p>
-//                       </div>
-//                     </div>
-//                   </div>
-//                 </>
-//               )}
-//             </CardContent>
-//           </Card>
-//         </TabsContent>
-//       </Tabs>
-
-//       {/* Plot Details Dialog */}
-//       {selectedPlot && (
-//         <PlotDetailsDialog
-//           plot={selectedPlot}
-//           open={plotDetailsOpen}
-//           onOpenChange={setPlotDetailsOpen}
-//         />
-//       )}
-//     </div>
-//   );
-// }
-
-// export default FarmerDashboard;
+export default FarmerDashboard;

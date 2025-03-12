@@ -12,10 +12,12 @@ import Layout from "./Layout.jsx";
 import Home from "./assets/component/shared/Home.jsx";
 import About from "./assets/component/shared/About.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
-// import FarmerLayout from "./layouts/FarmerLayout.jsx"; // We'll create this
+import FarmerLayout from "./layouts/FarmerLayout.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";
-// import FarmerDashboard from "./pages/farmer/FarmerDashboard.jsx"; // Our new component
+import FarmerDashboard from "./pages/farmer/Dashboard.jsx";
 import { PlotProvider } from "./contexts/PlotContext.jsx";
+import { Toaster } from "sonner";
+import ErrorPage from "./pages/ErrorPage.jsx";
 
 // Import your Publishable Key
 const PUBLISHABLE_KEY = import.meta.env.VITE_CLERK_PUBLISHABLE_KEY;
@@ -26,10 +28,13 @@ if (!PUBLISHABLE_KEY) {
 
 const router = createBrowserRouter(
   createRoutesFromElements(
-    <Route path="/" element={<Layout />}>
-      <Route path="/" element={<Home />} />
+    <Route path="/" element={<Layout />} errorElement={<ErrorPage />}>
+      <Route index element={<Home />} />
+      <Route path="about" element={<About />} />
+
+      {/* Admin Routes */}
       <Route
-        path="/admin"
+        path="admin"
         element={
           <AdminLayout>
             <PlotProvider>
@@ -38,23 +43,25 @@ const router = createBrowserRouter(
           </AdminLayout>
         }
       />
-      {/* <Route
-        path="/farmer-dashboard"
+
+      {/* Farmer Routes */}
+      <Route
+        path="farmer"
         element={
           <FarmerLayout>
             <FarmerDashboard />
           </FarmerLayout>
         }
-      /> */}
-      <Route path="/about" element={<About />} />
+      />
     </Route>
   )
 );
 
 createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <ClerkProvider publishableKey={PUBLISHABLE_KEY} afterSignOutUrl="/">
+    <ClerkProvider publishableKey={PUBLISHABLE_KEY}>
       <RouterProvider router={router} />
+      <Toaster position="top-right" richColors />
     </ClerkProvider>
   </StrictMode>
 );

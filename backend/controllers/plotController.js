@@ -109,6 +109,33 @@ exports.getPlot = async (req, res) => {
   }
 };
 
+// Get plots by owner_id
+exports.getPlotsByOwner = async (req, res) => {
+  try {
+    const plots = await Plot.findAll({
+      where: { owner_id: req.params.ownerId },
+    });
+
+    if (!plots.length) {
+      return res.status(404).json({
+        success: false,
+        error: "No plots found for this owner",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      count: plots.length,
+      data: plots,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: "Server Error: " + error.message,
+    });
+  }
+};
+
 // Update plot
 exports.updatePlot = async (req, res) => {
   try {

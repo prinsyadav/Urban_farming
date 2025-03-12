@@ -1,15 +1,17 @@
 import { Outlet } from "react-router-dom";
+import Navbar from "./assets/component/shared/Navbar";
 import Footer from "./assets/component/shared/Footer";
-import Header from "./assets/component/shared/Header";
 import { Toaster } from "sonner";
 
 function Layout() {
   return (
-    <div>
-      <Header />
-      <Outlet />
+    <div className="flex flex-col min-h-screen">
+      <Navbar />
+      <main className="flex-1">
+        <Outlet />
+      </main>
       <Footer />
-      <Toaster richColors />
+      <Toaster />
     </div>
   );
 }
