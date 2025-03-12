@@ -42,19 +42,33 @@ import {
   Calendar,
   Map,
   Users,
+  RotateCw,
+  Droplets,
 } from "lucide-react";
 import { CropForm } from "../../components/crops/CropForm";
 import { CropEditForm } from "../../components/crops/CropEditForm";
 import { PlotEditForm } from "../../components/plots/PlotEditForm";
+import { HarvestScheduleForm } from "../../components/schedules/HarvestScheduleForm";
+import { CropRotationForm } from "../../components/rotations/CropRotationForm";
+import { ActivityLogForm } from "../../components/activities/ActivityLogForm";
 
 function AdminDashboard() {
   const { user } = useUser();
   const [plots, setPlots] = useState([]);
   const [crops, setCrops] = useState([]);
+  const [harvestSchedules, setHarvestSchedules] = useState([]);
+  const [cropRotations, setCropRotations] = useState([]);
+  const [activityLogs, setActivityLogs] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isCropsLoading, setIsCropsLoading] = useState(true);
+  const [isSchedulesLoading, setIsSchedulesLoading] = useState(true);
+  const [isRotationsLoading, setIsRotationsLoading] = useState(true);
+  const [isActivitiesLoading, setIsActivitiesLoading] = useState(true);
   const [showPlotCard, setShowPlotCard] = useState(false);
   const [showCropForm, setShowCropForm] = useState(false);
+  const [showScheduleForm, setShowScheduleForm] = useState(false);
+  const [showRotationForm, setShowRotationForm] = useState(false);
+  const [showActivityForm, setShowActivityForm] = useState(false);
   const [activeTab, setActiveTab] = useState("overview");
   const [dashboardStats, setDashboardStats] = useState({
     totalPlots: 0,
@@ -112,10 +126,16 @@ function AdminDashboard() {
     }
   };
 
-  // Fetch all crops when component mounts or when activeTab changes to crops
+  // Fetch data based on active tab
   useEffect(() => {
     if (activeTab === "crops") {
       fetchCrops();
+    } else if (activeTab === "schedule") {
+      fetchHarvestSchedules();
+    } else if (activeTab === "rotations") {
+      fetchCropRotations();
+    } else if (activeTab === "activities") {
+      fetchActivityLogs();
     }
   }, [activeTab]);
 
@@ -134,6 +154,62 @@ function AdminDashboard() {
       toast.error("Failed to load crops");
     } finally {
       setIsCropsLoading(false);
+    }
+  };
+
+  // Function to fetch harvest schedules from the API
+  const fetchHarvestSchedules = async () => {
+    setIsSchedulesLoading(true);
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/harvest-schedules"
+      );
+      if (!response.ok) {
+        throw new Error("Failed to fetch harvest schedules");
+      }
+      const data = await response.json();
+      setHarvestSchedules(data.data || []);
+    } catch (error) {
+      console.error("Error fetching harvest schedules:", error);
+      toast.error("Failed to load harvest schedules");
+    } finally {
+      setIsSchedulesLoading(false);
+    }
+  };
+
+  // Function to fetch crop rotations from the API
+  const fetchCropRotations = async () => {
+    setIsRotationsLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/api/crop-rotations");
+      if (!response.ok) {
+        throw new Error("Failed to fetch crop rotations");
+      }
+      const data = await response.json();
+      setCropRotations(data.data || []);
+    } catch (error) {
+      console.error("Error fetching crop rotations:", error);
+      toast.error("Failed to load crop rotations");
+    } finally {
+      setIsRotationsLoading(false);
+    }
+  };
+
+  // Function to fetch activity logs from the API
+  const fetchActivityLogs = async () => {
+    setIsActivitiesLoading(true);
+    try {
+      const response = await fetch("http://localhost:3000/api/activity-logs");
+      if (!response.ok) {
+        throw new Error("Failed to fetch activity logs");
+      }
+      const data = await response.json();
+      setActivityLogs(data.data || []);
+    } catch (error) {
+      console.error("Error fetching activity logs:", error);
+      toast.error("Failed to load activity logs");
+    } finally {
+      setIsActivitiesLoading(false);
     }
   };
 
@@ -235,6 +311,100 @@ function AdminDashboard() {
     }
   };
 
+  // Handle adding and deleting operations for schedules, rotations, and activities
+  const handleAddSchedule = () => {
+    setShowScheduleForm(true);
+  };
+
+  const handleScheduleAdded = () => {
+    setShowScheduleForm(false);
+    fetchHarvestSchedules();
+    toast.success("Harvest schedule added successfully");
+  };
+
+  const handleDeleteSchedule = async (scheduleId) => {
+    if (!confirm("Are you sure you want to delete this schedule?")) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/harvest-schedules/${scheduleId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete schedule");
+      }
+
+      toast.success("Schedule deleted successfully");
+      fetchHarvestSchedules();
+    } catch (error) {
+      console.error("Error deleting schedule:", error);
+      toast.error("Failed to delete schedule");
+    }
+  };
+
+  const handleAddRotation = () => {
+    setShowRotationForm(true);
+  };
+
+  const handleRotationAdded = () => {
+    setShowRotationForm(false);
+    fetchCropRotations();
+    toast.success("Crop rotation added successfully");
+  };
+
+  const handleDeleteRotation = async (rotationId) => {
+    if (!confirm("Are you sure you want to delete this rotation?")) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/crop-rotations/${rotationId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete rotation");
+      }
+
+      toast.success("Rotation deleted successfully");
+      fetchCropRotations();
+    } catch (error) {
+      console.error("Error deleting rotation:", error);
+      toast.error("Failed to delete rotation");
+    }
+  };
+
+  const handleAddActivity = () => {
+    setShowActivityForm(true);
+  };
+
+  const handleActivityAdded = () => {
+    setShowActivityForm(false);
+    fetchActivityLogs();
+    toast.success("Activity log added successfully");
+  };
+
+  const handleDeleteActivity = async (activityId) => {
+    if (!confirm("Are you sure you want to delete this activity log?")) return;
+
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/activity-logs/${activityId}`,
+        { method: "DELETE" }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to delete activity log");
+      }
+
+      toast.success("Activity log deleted successfully");
+      fetchActivityLogs();
+    } catch (error) {
+      console.error("Error deleting activity log:", error);
+      toast.error("Failed to delete activity log");
+    }
+  };
+
   // Check if user is admin
   const isAdmin = user?.publicMetadata?.role === "admin";
 
@@ -309,7 +479,7 @@ function AdminDashboard() {
         onValueChange={setActiveTab}
         className="mb-6"
       >
-        <TabsList className="grid grid-cols-5 w-[600px]">
+        <TabsList className="grid grid-cols-7 w-[900px]">
           <TabsTrigger value="overview">
             <LayoutDashboard className="h-4 w-4 mr-2" />
             Overview
@@ -324,7 +494,15 @@ function AdminDashboard() {
           </TabsTrigger>
           <TabsTrigger value="schedule">
             <Calendar className="h-4 w-4 mr-2" />
-            Schedule
+            Schedules
+          </TabsTrigger>
+          <TabsTrigger value="rotations">
+            <RotateCw className="h-4 w-4 mr-2" />
+            Rotations
+          </TabsTrigger>
+          <TabsTrigger value="activities">
+            <Droplets className="h-4 w-4 mr-2" />
+            Activities
           </TabsTrigger>
           <TabsTrigger value="farmers">
             <Users className="h-4 w-4 mr-2" />
@@ -666,19 +844,297 @@ function AdminDashboard() {
           </Card>
         </TabsContent>
 
-        {/* Schedule Tab Content */}
+        {/* Harvest Schedule Tab Content */}
         <TabsContent value="schedule">
           <Card>
-            <CardHeader>
-              <CardTitle>Harvest Schedule</CardTitle>
-              <CardDescription>
-                View and manage upcoming harvests
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Harvest Schedule Management</CardTitle>
+                <CardDescription>
+                  Track and manage harvest schedules for all plots
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleAddSchedule}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add New Schedule
+              </Button>
             </CardHeader>
             <CardContent>
-              <p className="text-center text-muted-foreground py-8">
-                Harvest schedule interface coming soon
-              </p>
+              {isSchedulesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Crop</TableHead>
+                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead>Actual Harvest</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {harvestSchedules.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center">
+                            No harvest schedules found. Add your first schedule
+                            to get started.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        harvestSchedules.map((schedule) => (
+                          <TableRow key={schedule.schedule_id}>
+                            <TableCell className="font-medium">
+                              {schedule.schedule_id}
+                            </TableCell>
+                            <TableCell>
+                              {schedule.plot?.plot_id || schedule.plot_id}
+                            </TableCell>
+                            <TableCell>
+                              {schedule.crop?.name ||
+                                `Crop #${schedule.crop_id}`}
+                            </TableCell>
+                            <TableCell>
+                              {formatDate(schedule.expected_harvest_date)}
+                            </TableCell>
+                            <TableCell>
+                              {schedule.actual_harvest_date ? (
+                                formatDate(schedule.actual_harvest_date)
+                              ) : (
+                                <Badge variant="outline">Not harvested</Badge>
+                              )}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">Open menu</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() =>
+                                      handleDeleteSchedule(schedule.schedule_id)
+                                    }
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Crop Rotation Tab Content */}
+        <TabsContent value="rotations">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Crop Rotation Management</CardTitle>
+                <CardDescription>
+                  Plan and monitor crop rotations to maintain soil health
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleAddRotation}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add New Rotation
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isRotationsLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Previous Crop</TableHead>
+                        <TableHead>Next Crop</TableHead>
+                        <TableHead>Rotation Date</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {cropRotations.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center">
+                            No crop rotations found. Add your first rotation
+                            plan to get started.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        cropRotations.map((rotation) => (
+                          <TableRow key={rotation.rotation_id}>
+                            <TableCell className="font-medium">
+                              {rotation.rotation_id}
+                            </TableCell>
+                            <TableCell>
+                              {rotation.plot?.plot_id || rotation.plot_id}
+                            </TableCell>
+                            <TableCell>{rotation.previous_crop}</TableCell>
+                            <TableCell>{rotation.next_crop}</TableCell>
+                            <TableCell>
+                              {formatDate(rotation.rotation_date)}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">Open menu</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() =>
+                                      handleDeleteRotation(rotation.rotation_id)
+                                    }
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        {/* Activity Logs Tab Content */}
+        <TabsContent value="activities">
+          <Card>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Activity Log Management</CardTitle>
+                <CardDescription>
+                  Track irrigation, fertilization, and other farming activities
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleAddActivity}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add New Activity
+              </Button>
+            </CardHeader>
+            <CardContent>
+              {isActivitiesLoading ? (
+                <div className="flex justify-center items-center py-8">
+                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                </div>
+              ) : (
+                <div className="rounded-md border">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>ID</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Activity Type</TableHead>
+                        <TableHead>Date</TableHead>
+                        <TableHead>Notes</TableHead>
+                        <TableHead className="w-[100px]">Actions</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {activityLogs.length === 0 ? (
+                        <TableRow>
+                          <TableCell colSpan={6} className="h-24 text-center">
+                            No activity logs found. Add your first activity log
+                            to get started.
+                          </TableCell>
+                        </TableRow>
+                      ) : (
+                        activityLogs.map((activity) => (
+                          <TableRow key={activity.activity_id}>
+                            <TableCell className="font-medium">
+                              {activity.activity_id}
+                            </TableCell>
+                            <TableCell>
+                              {activity.plot?.plot_id || activity.plot_id}
+                            </TableCell>
+                            <TableCell>
+                              <Badge
+                                variant={
+                                  activity.type === "Irrigation"
+                                    ? "default"
+                                    : "secondary"
+                                }
+                              >
+                                {activity.type}
+                              </Badge>
+                            </TableCell>
+                            <TableCell>{formatDate(activity.date)}</TableCell>
+                            <TableCell className="max-w-[200px] truncate">
+                              {activity.notes || "No notes"}
+                            </TableCell>
+                            <TableCell>
+                              <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                  <Button
+                                    variant="ghost"
+                                    className="h-8 w-8 p-0"
+                                  >
+                                    <span className="sr-only">Open menu</span>
+                                    <ChevronDown className="h-4 w-4" />
+                                  </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                  <DropdownMenuLabel>Actions</DropdownMenuLabel>
+                                  <DropdownMenuItem
+                                    className="text-red-600"
+                                    onClick={() =>
+                                      handleDeleteActivity(activity.activity_id)
+                                    }
+                                  >
+                                    <Trash2 className="mr-2 h-4 w-4" /> Delete
+                                  </DropdownMenuItem>
+                                </DropdownMenuContent>
+                              </DropdownMenu>
+                            </TableCell>
+                          </TableRow>
+                        ))
+                      )}
+                    </TableBody>
+                  </Table>
+                </div>
+              )}
             </CardContent>
           </Card>
         </TabsContent>
@@ -785,6 +1241,75 @@ function AdminDashboard() {
               plots={plots}
               onCropUpdated={handleCropUpdated}
               onCancel={() => setShowCropEditForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Harvest Schedule Form Modal */}
+      {showScheduleForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Harvest Schedule</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowScheduleForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <HarvestScheduleForm
+              onScheduleAdded={handleScheduleAdded}
+              plots={plots}
+              onCancel={() => setShowScheduleForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Crop Rotation Form Modal */}
+      {showRotationForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Crop Rotation</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowRotationForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <CropRotationForm
+              onRotationAdded={handleRotationAdded}
+              plots={plots}
+              onCancel={() => setShowRotationForm(false)}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Activity Log Form Modal */}
+      {showActivityForm && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold">Add New Activity Log</h2>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setShowActivityForm(false)}
+              >
+                ✕
+              </Button>
+            </div>
+            <ActivityLogForm
+              onActivityAdded={handleActivityAdded}
+              plots={plots}
+              onCancel={() => setShowActivityForm(false)}
             />
           </div>
         </div>

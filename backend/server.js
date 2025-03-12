@@ -4,6 +4,9 @@ const port = 3000;
 const sequelize = require("./config/db");
 const plotRoutes = require("./routes/plotRoutes");
 const cropRoutes = require("./routes/cropRoutes");
+const activityLogRoutes = require("./routes/activityLogRoutes");
+const harvestScheduleRoutes = require("./routes/harvestScheduleRoutes");
+const cropRotationRoutes = require("./routes/cropRotationRoutes");
 
 // Allow CORS
 app.use((req, res, next) => {
@@ -28,6 +31,9 @@ app.use(express.json());
 // Routes
 app.use("/api/plots", plotRoutes);
 app.use("/api/crops", cropRoutes);
+app.use("/api/activity-logs", activityLogRoutes);
+app.use("/api/harvest-schedules", harvestScheduleRoutes);
+app.use("/api/crop-rotations", cropRotationRoutes);
 
 // Simple route to check server status
 app.get("/api/status", (req, res) => {
