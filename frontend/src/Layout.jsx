@@ -1,6 +1,6 @@
 import { Outlet } from "react-router-dom";
-import Navbar from "./assets/component/shared/Navbar";
-import Footer from "./assets/component/shared/Footer";
+import Navbar from "./assets/shared/Navbar";
+import Footer from "./assets/shared/Footer";
 import { Toaster } from "sonner";
 
 function Layout() {

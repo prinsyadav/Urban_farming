@@ -1,7 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { ClerkProvider } from "@clerk/clerk-react";
 import Layout from "./Layout";
-import Home from "./assets/component/shared/Home";
+import Home from "./assets/shared/Home";
 import AdminDashboard from "./pages/admin/Dashboard";
 import AdminLayout from "./layouts/AdminLayout";
 import FarmerDashboard from "./pages/farmer/Dashboard";

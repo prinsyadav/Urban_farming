@@ -111,7 +111,7 @@ export function CropRotationEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select a plot" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {plots.length === 0 ? (
                 <SelectItem value="_no_plots">No plots available</SelectItem>
               ) : (
@@ -135,7 +135,7 @@ export function CropRotationEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select previous crop" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {commonCrops.map((crop) => (
                 <SelectItem key={crop} value={crop}>
                   {crop}
@@ -155,7 +155,7 @@ export function CropRotationEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select next crop" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {commonCrops.map((crop) => (
                 <SelectItem key={crop} value={crop}>
                   {crop}
@@ -184,7 +184,7 @@ export function CropRotationEditForm({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white">
               <Calendar
                 mode="single"
                 selected={formData.rotation_date}

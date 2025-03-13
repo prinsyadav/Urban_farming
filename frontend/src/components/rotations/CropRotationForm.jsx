@@ -102,7 +102,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select a plot" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {plots.length === 0 ? (
                 <SelectItem value="" disabled>
                   No plots available
@@ -128,7 +128,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select previous crop" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {commonCrops.map((crop) => (
                 <SelectItem key={crop} value={crop}>
                   {crop}
@@ -148,7 +148,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
             <SelectTrigger>
               <SelectValue placeholder="Select next crop" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {commonCrops.map((crop) => (
                 <SelectItem key={crop} value={crop}>
                   {crop}
@@ -177,7 +177,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white">
               <Calendar
                 mode="single"
                 selected={formData.rotation_date}

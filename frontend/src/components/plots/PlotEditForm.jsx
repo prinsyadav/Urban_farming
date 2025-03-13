@@ -160,7 +160,7 @@ export function PlotEditForm({ plot, onPlotUpdated, onCancel }) {
           <SelectTrigger id="soil_type">
             <SelectValue placeholder="Select soil type" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="clay">Clay</SelectItem>
             <SelectItem value="sandy">Sandy</SelectItem>
             <SelectItem value="loamy">Loamy</SelectItem>
@@ -208,7 +208,7 @@ export function PlotEditForm({ plot, onPlotUpdated, onCancel }) {
           <SelectTrigger id="status">
             <SelectValue placeholder="Select plot status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="active">Active</SelectItem>
             <SelectItem value="inactive">Inactive</SelectItem>
             <SelectItem value="pending">Pending</SelectItem>

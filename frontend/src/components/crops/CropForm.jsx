@@ -117,7 +117,7 @@ export function CropForm({ onCropAdded, plots, onCancel }) {
           <SelectTrigger id="plot_id">
             <SelectValue placeholder="Select a plot for this crop" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             {plots.length === 0 ? (
               <SelectItem value="" disabled>
                 No plots available
@@ -170,7 +170,7 @@ export function CropForm({ onCropAdded, plots, onCancel }) {
           <SelectTrigger id="status">
             <SelectValue placeholder="Select crop status" />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="bg-white">
             <SelectItem value="Planted">Planted</SelectItem>
             <SelectItem value="Growing">Growing</SelectItem>
             <SelectItem value="Harvested">Harvested</SelectItem>

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
-import { FarmPlotCard } from "../../assets/component/plots/PlotCard";
+import { FarmPlotCard } from "../../components/plots/PlotCard";
 import { toast } from "sonner";
 import { format } from "date-fns";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
@@ -333,6 +333,20 @@ function AdminDashboard() {
     toast.success("Harvest schedule added successfully");
   };
 
+  // Handle editing a schedule
+  const handleEditSchedule = (schedule) => {
+    setSelectedSchedule(schedule);
+    setShowScheduleEditForm(true);
+  };
+
+  // Handle schedule updated successfully
+  const handleScheduleUpdated = () => {
+    setShowScheduleEditForm(false);
+    setSelectedSchedule(null);
+    fetchHarvestSchedules();
+    toast.success("Harvest schedule updated successfully");
+  };
+
   const handleScheduleError = (message) => {
     toast.error(message || "Failed to create harvest schedule");
     // Keep the form open so the user can modify their selection
@@ -507,9 +521,6 @@ function AdminDashboard() {
     <div className="container mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
-        <Button onClick={handleAddPlot} className="flex items-center gap-2">
-          <Plus className="h-4 w-4" /> Add New Plot
-        </Button>
       </div>
 
       {/* Dashboard Tabs */}
@@ -675,11 +686,19 @@ function AdminDashboard() {
         {/* Plots Tab Content */}
         <TabsContent value="plots">
           <Card>
-            <CardHeader>
-              <CardTitle>Plot Management</CardTitle>
-              <CardDescription>
-                Manage all farm plots and their details
-              </CardDescription>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <div>
+                <CardTitle>Plot Management</CardTitle>
+                <CardDescription>
+                  Manage all farm plots and their details
+                </CardDescription>
+              </div>
+              <Button
+                onClick={handleAddPlot}
+                className="flex items-center gap-2"
+              >
+                <Plus className="h-4 w-4" /> Add New Plot
+              </Button>
             </CardHeader>
             <CardContent>
               {isLoading ? (
@@ -749,7 +768,10 @@ function AdminDashboard() {
                                     <ChevronDown className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="bg-white"
+                                >
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => handleEditPlot(plot)}
@@ -854,7 +876,10 @@ function AdminDashboard() {
                                     <ChevronDown className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="bg-white"
+                                >
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => handleEditCrop(crop)}
@@ -961,7 +986,10 @@ function AdminDashboard() {
                                     <ChevronDown className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="bg-white"
+                                >
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => handleEditSchedule(schedule)}
@@ -1059,7 +1087,10 @@ function AdminDashboard() {
                                     <ChevronDown className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="bg-white"
+                                >
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => handleEditRotation(rotation)}
@@ -1167,7 +1198,10 @@ function AdminDashboard() {
                                     <ChevronDown className="h-4 w-4" />
                                   </Button>
                                 </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
+                                <DropdownMenuContent
+                                  align="end"
+                                  className="bg-white"
+                                >
                                   <DropdownMenuLabel>Actions</DropdownMenuLabel>
                                   <DropdownMenuItem
                                     onClick={() => handleEditActivity(activity)}

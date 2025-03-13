@@ -9,8 +9,8 @@ import {
   RouterProvider,
 } from "react-router-dom";
 import Layout from "./Layout.jsx";
-import Home from "./assets/component/shared/Home.jsx";
-import About from "./assets/component/shared/About.jsx";
+import Home from "./assets/shared/Home.jsx";
+import About from "./assets/shared/About.jsx";
 import AdminLayout from "./layouts/AdminLayout.jsx";
 import FarmerLayout from "./layouts/FarmerLayout.jsx";
 import AdminDashboard from "./pages/admin/Dashboard.jsx";

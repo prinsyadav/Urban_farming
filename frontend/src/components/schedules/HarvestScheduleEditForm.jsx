@@ -125,7 +125,7 @@ export function HarvestScheduleEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select a plot" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {plots.length === 0 ? (
                 <SelectItem value="_no_plots">No plots available</SelectItem>
               ) : (
@@ -161,7 +161,7 @@ export function HarvestScheduleEditForm({
                 <SelectValue placeholder="Select a crop" />
               )}
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {!formData.plot_id ? (
                 <SelectItem value="_select_plot">
                   Select a plot first
@@ -203,7 +203,7 @@ export function HarvestScheduleEditForm({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white">
               <Calendar
                 mode="single"
                 selected={formData.expected_harvest_date}
@@ -237,7 +237,7 @@ export function HarvestScheduleEditForm({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white">
               <Calendar
                 mode="single"
                 selected={formData.actual_harvest_date}

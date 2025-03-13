@@ -93,7 +93,7 @@ export function ActivityLogEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select a plot" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {plots.length === 0 ? (
                 <SelectItem value="_no_plots">No plots available</SelectItem>
               ) : (
@@ -117,7 +117,7 @@ export function ActivityLogEditForm({
             <SelectTrigger>
               <SelectValue placeholder="Select activity type" />
             </SelectTrigger>
-            <SelectContent>
+            <SelectContent className="bg-white">
               {activityTypes.map((type) => (
                 <SelectItem key={type.value} value={type.value}>
                   {type.label}
@@ -146,7 +146,7 @@ export function ActivityLogEditForm({
                 )}
               </Button>
             </PopoverTrigger>
-            <PopoverContent className="w-auto p-0">
+            <PopoverContent className="w-auto p-0 bg-white">
               <Calendar
                 mode="single"
                 selected={formData.date}
