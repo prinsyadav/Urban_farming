@@ -11,7 +11,7 @@ function Layout() {
         <Outlet />
       </main>
       <Footer />
-      <Toaster />
+      {/* <Toaster /> */}
     </div>
   );
 }
