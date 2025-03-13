@@ -19,7 +19,7 @@ import {
 } from "@/components/ui/select";
 import { toast } from "sonner";
 
-export function FarmPlotCard({ onPlotAdded }) {
+export function FarmPlotCard({ onPlotAdded, onCancel }) {
   const [isLoading, setIsLoading] = useState(false);
   const [plotData, setPlotData] = useState({
     plot_id: "",
@@ -126,6 +126,25 @@ export function FarmPlotCard({ onPlotAdded }) {
       toast.error("Failed to connect to server");
     } finally {
       setIsLoading(false);
+    }
+  };
+
+  const handleCancelClick = () => {
+    // Reset form data
+    setPlotData({
+      plot_id: "",
+      owner_id: "",
+      size: "",
+      location: "",
+      soil_type: "",
+      lease_start: "",
+      lease_end: "",
+      status: "active",
+    });
+
+    // Call the onCancel prop if provided
+    if (onCancel && typeof onCancel === "function") {
+      onCancel();
     }
   };
 
@@ -249,21 +268,7 @@ export function FarmPlotCard({ onPlotAdded }) {
         </form>
       </CardContent>
       <CardFooter className="flex justify-between">
-        <Button
-          variant="outline"
-          onClick={() =>
-            setPlotData({
-              plot_id: "",
-              owner_id: "",
-              size: "",
-              location: "",
-              soil_type: "",
-              lease_start: "",
-              lease_end: "",
-              status: "active",
-            })
-          }
-        >
+        <Button variant="outline" onClick={handleCancelClick}>
           Cancel
         </Button>
         <Button onClick={handleSubmit} disabled={isLoading}>

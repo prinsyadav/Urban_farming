@@ -517,6 +517,11 @@ function AdminDashboard() {
     );
   };
 
+  // Add this handler for the PlotCard cancel action
+  const handlePlotCardCancel = () => {
+    setShowPlotCard(false);
+  };
+
   return (
     <div className="container mx-auto py-6 px-4">
       <div className="flex justify-between items-center mb-6">
@@ -1263,7 +1268,10 @@ function AdminDashboard() {
                 ✕
               </Button>
             </div>
-            <FarmPlotCard onPlotAdded={handlePlotAdded} />
+            <FarmPlotCard
+              onPlotAdded={handlePlotAdded}
+              onCancel={handlePlotCardCancel}
+            />
           </div>
         </div>
       )}
