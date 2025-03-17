@@ -30,7 +30,7 @@ function Home() {
 
           {user?.publicMetadata?.role === "farmer" && (
             <div className="flex flex-col items-center gap-4">
-              <Link to="/farmer-dashboard">
+              <Link to="/farmer">
                 <Button className="bg-blue-600 hover:bg-blue-700">
                   Go to Farmer Dashboard
                 </Button>
