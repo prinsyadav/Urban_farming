@@ -52,7 +52,7 @@ export function ActivityLogForm({ onActivityAdded, onCancel, plots = [] }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch('${API_URL}/api/activity-logs', {
+      const response = await fetch(`${API_URL}/api/activity-logs`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

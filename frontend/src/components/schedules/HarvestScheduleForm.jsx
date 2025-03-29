@@ -44,9 +44,7 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
   const fetchCropsForPlot = async (plotId) => {
     setIsLoadingCrops(true);
     try {
-      const response = await fetch(
-        `${API_URL}/api/crops/plot/${plotId}`
-      );
+      const response = await fetch(`${API_URL}/api/crops/plot/${plotId}`);
       if (!response.ok) {
         throw new Error("Failed to fetch crops for this plot");
       }
@@ -80,16 +78,13 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch(
-        "${API_URL}/api/harvest-schedules",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(formData),
-        }
-      );
+      const response = await fetch(`${API_URL}/api/harvest-schedules`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
 
       // Handle conflict - schedule already exists for this plot
       if (response.status === 409) {

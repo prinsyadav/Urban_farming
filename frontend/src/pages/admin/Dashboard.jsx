@@ -124,7 +124,7 @@ function AdminDashboard() {
   const fetchPlots = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("${API_URL}/api/plots");
+      const response = await fetch(`${API_URL}/api/plots`);
       if (!response.ok) {
         throw new Error("Failed to fetch plots");
       }
@@ -155,7 +155,7 @@ function AdminDashboard() {
   const fetchCrops = async () => {
     setIsCropsLoading(true);
     try {
-      const response = await fetch("${API_URL}/api/crops");
+      const response = await fetch(`${API_URL}/api/crops`);
       if (!response.ok) {
         throw new Error("Failed to fetch crops");
       }
@@ -173,9 +173,7 @@ function AdminDashboard() {
   const fetchHarvestSchedules = async () => {
     setIsSchedulesLoading(true);
     try {
-      const response = await fetch(
-        "${API_URL}/api/harvest-schedules"
-      );
+      const response = await fetch(`${API_URL}/api/harvest-schedules`);
       if (!response.ok) {
         throw new Error("Failed to fetch harvest schedules");
       }
@@ -193,7 +191,7 @@ function AdminDashboard() {
   const fetchCropRotations = async () => {
     setIsRotationsLoading(true);
     try {
-      const response = await fetch("${API_URL}/api/crop-rotations");
+      const response = await fetch(`${API_URL}/api/crop-rotations`);
       if (!response.ok) {
         throw new Error("Failed to fetch crop rotations");
       }
@@ -211,7 +209,7 @@ function AdminDashboard() {
   const fetchActivityLogs = async () => {
     setIsActivitiesLoading(true);
     try {
-      const response = await fetch("${API_URL}/api/activity-logs");
+      const response = await fetch(`${API_URL}/api/activity-logs`);
       if (!response.ok) {
         throw new Error("Failed to fetch activity logs");
       }
@@ -255,12 +253,9 @@ function AdminDashboard() {
     if (!confirm("Are you sure you want to delete this plot?")) return;
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/plots/${plotId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_URL}/api/plots/${plotId}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete plot");
@@ -304,12 +299,9 @@ function AdminDashboard() {
     if (!confirm("Are you sure you want to delete this crop?")) return;
 
     try {
-      const response = await fetch(
-        `${API_URL}/api/crops/${cropId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_URL}/api/crops/${cropId}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete crop");

@@ -68,7 +68,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("${API_URL}/api/crop-rotations", {
+      const response = await fetch(`${API_URL}/api/crop-rotations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

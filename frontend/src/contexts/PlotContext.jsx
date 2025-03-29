@@ -12,7 +12,7 @@ export const PlotProvider = ({ children }) => {
   const fetchPlots = async () => {
     setLoading(true);
     try {
-      const response = await fetch("${API_URL}/api/plots");
+      const response = await fetch(`${API_URL}/api/plots`);
       if (!response.ok) {
         throw new Error("Failed to fetch plots");
       }
@@ -29,7 +29,7 @@ export const PlotProvider = ({ children }) => {
   // Add a new plot
   const addPlot = async (plotData) => {
     try {
-      const response = await fetch("${API_URL}/api/plots", {
+      const response = await fetch(`${API_URL}/api/plots`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,12 +53,9 @@ export const PlotProvider = ({ children }) => {
   // Delete a plot
   const deletePlot = async (plotId) => {
     try {
-      const response = await fetch(
-        `${API_URL}/api/plots/${plotId}`,
-        {
-          method: "DELETE",
-        }
-      );
+      const response = await fetch(`${API_URL}/api/plots/${plotId}`, {
+        method: "DELETE",
+      });
 
       if (!response.ok) {
         throw new Error("Failed to delete plot");
