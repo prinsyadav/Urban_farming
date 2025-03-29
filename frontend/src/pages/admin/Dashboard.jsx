@@ -45,6 +45,7 @@ import {
   Users,
   RotateCw,
   Droplets,
+  Menu,
 } from "lucide-react";
 import { CropForm } from "../../components/crops/CropForm";
 import { CropEditForm } from "../../components/crops/CropEditForm";
@@ -55,6 +56,7 @@ import { ActivityLogForm } from "../../components/activities/ActivityLogForm";
 import { HarvestScheduleEditForm } from "../../components/schedules/HarvestScheduleEditForm";
 import { CropRotationEditForm } from "../../components/rotations/CropRotationEditForm";
 import { ActivityLogEditForm } from "../../components/activities/ActivityLogEditForm";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function AdminDashboard() {
   const { user } = useUser();
@@ -516,175 +518,256 @@ function AdminDashboard() {
   };
 
   return (
-    <div className="container mx-auto py-6 px-4">
-      <div className="flex justify-between items-center mb-6">
-        <h1 className="text-3xl font-bold tracking-tight">Admin Dashboard</h1>
+    <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4">
+      <div className="flex justify-between items-center mb-4 sm:mb-6">
+        <h1 className="text-2xl sm:text-3xl font-bold tracking-tight">
+          Admin Dashboard
+        </h1>
       </div>
 
-      {/* Dashboard Tabs */}
-      <Tabs
-        defaultValue="overview"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="mb-6"
-      >
-        <TabsList className="grid grid-cols-7 w-[900px]">
-          <TabsTrigger value="overview">
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="plots">
-            <Map className="h-4 w-4 mr-2" />
-            Plots
-          </TabsTrigger>
-          <TabsTrigger value="crops">
-            <Sprout className="h-4 w-4 mr-2" />
-            Crops
-          </TabsTrigger>
-          <TabsTrigger value="schedule">
-            <Calendar className="h-4 w-4 mr-2" />
-            Schedules
-          </TabsTrigger>
-          <TabsTrigger value="rotations">
-            <RotateCw className="h-4 w-4 mr-2" />
-            Rotations
-          </TabsTrigger>
-          <TabsTrigger value="activities">
-            <Droplets className="h-4 w-4 mr-2" />
-            Activities
-          </TabsTrigger>
-          <TabsTrigger value="farmers">
-            <Users className="h-4 w-4 mr-2" />
-            Farmers
-          </TabsTrigger>
-        </TabsList>
+      {/* Mobile Navigation - Visible on small screens only */}
+      <div className="block md:hidden mb-4">
+        <Sheet>
+          <SheetTrigger asChild>
+            <Button
+              variant="outline"
+              className="w-full flex items-center justify-between"
+            >
+              <span>
+                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </span>
+              <Menu className="h-4 w-4" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+            <div className="py-4">
+              <div className="space-y-1 flex flex-col">
+                <Button
+                  variant={activeTab === "overview" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("overview")}
+                >
+                  <LayoutDashboard className="h-4 w-4 mr-2" /> Overview
+                </Button>
+                <Button
+                  variant={activeTab === "plots" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("plots")}
+                >
+                  <Map className="h-4 w-4 mr-2" /> Plots
+                </Button>
+                <Button
+                  variant={activeTab === "crops" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("crops")}
+                >
+                  <Sprout className="h-4 w-4 mr-2" /> Crops
+                </Button>
+                <Button
+                  variant={activeTab === "schedule" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("schedule")}
+                >
+                  <Calendar className="h-4 w-4 mr-2" /> Schedules
+                </Button>
+                <Button
+                  variant={activeTab === "rotations" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("rotations")}
+                >
+                  <RotateCw className="h-4 w-4 mr-2" /> Rotations
+                </Button>
+                <Button
+                  variant={activeTab === "activities" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("activities")}
+                >
+                  <Droplets className="h-4 w-4 mr-2" /> Activities
+                </Button>
+                <Button
+                  variant={activeTab === "farmers" ? "default" : "ghost"}
+                  className="justify-start"
+                  onClick={() => setActiveTab("farmers")}
+                >
+                  <Users className="h-4 w-4 mr-2" /> Farmers
+                </Button>
+              </div>
+            </div>
+          </SheetContent>
+        </Sheet>
+      </div>
 
+      {/* Desktop Tabs - Hidden on small screens */}
+      <div className="hidden md:block">
+        <Tabs
+          defaultValue="overview"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="mb-6"
+        >
+          <TabsList className="grid grid-cols-7 w-full max-w-4xl">
+            <TabsTrigger value="overview">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="plots">
+              <Map className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Plots</span>
+            </TabsTrigger>
+            <TabsTrigger value="crops">
+              <Sprout className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Crops</span>
+            </TabsTrigger>
+            <TabsTrigger value="schedule">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Schedules</span>
+            </TabsTrigger>
+            <TabsTrigger value="rotations">
+              <RotateCw className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Rotations</span>
+            </TabsTrigger>
+            <TabsTrigger value="activities">
+              <Droplets className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Activities</span>
+            </TabsTrigger>
+            <TabsTrigger value="farmers">
+              <Users className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Farmers</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
+
+      {/* Tab Contents - Work for both mobile and desktop */}
+      <div className="mt-4">
         {/* Overview Tab Content */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Plots
-                </CardTitle>
-                <Map className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats.totalPlots}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  {dashboardStats.activePlots} active plots
-                </p>
-              </CardContent>
-            </Card>
+        {activeTab === "overview" && (
+          <div className="space-y-4">
+            <div className="grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Plots
+                  </CardTitle>
+                  <Map className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardStats.totalPlots}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    {dashboardStats.activePlots} active plots
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Total Area
-                </CardTitle>
-                <PieChart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats.totalArea} acres
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Across {dashboardStats.totalPlots} plots
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Total Area
+                  </CardTitle>
+                  <PieChart className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardStats.totalArea} acres
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Across {dashboardStats.totalPlots} plots
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Crop Types
-                </CardTitle>
-                <Sprout className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">
-                  {dashboardStats.cropTypes}
-                </div>
-                <p className="text-xs text-muted-foreground">
-                  Currently in cultivation
-                </p>
-              </CardContent>
-            </Card>
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Crop Types
+                  </CardTitle>
+                  <Sprout className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {dashboardStats.cropTypes}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Currently in cultivation
+                  </p>
+                </CardContent>
+              </Card>
 
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">
-                  Next Harvest
-                </CardTitle>
-                <Calendar className="h-4 w-4 text-muted-foreground" />
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">
+                    Next Harvest
+                  </CardTitle>
+                  <Calendar className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">
+                    {format(
+                      new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
+                      "MMM dd"
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    3 crops scheduled
+                  </p>
+                </CardContent>
+              </Card>
+            </div>
+
+            <Card className="col-span-4">
+              <CardHeader>
+                <CardTitle>Recent Activity</CardTitle>
+                <CardDescription>
+                  Overview of recent farming activities
+                </CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">
-                  {format(
-                    new Date(Date.now() + 12 * 24 * 60 * 60 * 1000),
-                    "MMM dd"
-                  )}
+                <div className="space-y-4">
+                  <div className="flex items-center">
+                    <div className="mr-4 bg-green-100 p-2 rounded-full">
+                      <Sprout className="h-5 w-5 text-green-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        New crop planted in Plot 3
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
+                          "MMMM d, yyyy"
+                        )}
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center">
+                    <div className="mr-4 bg-blue-100 p-2 rounded-full">
+                      <Map className="h-5 w-5 text-blue-600" />
+                    </div>
+                    <div className="space-y-1">
+                      <p className="text-sm font-medium leading-none">
+                        New plot registered: Plot 7
+                      </p>
+                      <p className="text-sm text-muted-foreground">
+                        {format(
+                          new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
+                          "MMMM d, yyyy"
+                        )}
+                      </p>
+                    </div>
+                  </div>
                 </div>
-                <p className="text-xs text-muted-foreground">
-                  3 crops scheduled
-                </p>
               </CardContent>
             </Card>
           </div>
-
-          <Card className="col-span-4">
-            <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
-              <CardDescription>
-                Overview of recent farming activities
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex items-center">
-                  <div className="mr-4 bg-green-100 p-2 rounded-full">
-                    <Sprout className="h-5 w-5 text-green-600" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      New crop planted in Plot 3
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(
-                        new Date(Date.now() - 2 * 24 * 60 * 60 * 1000),
-                        "MMMM d, yyyy"
-                      )}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex items-center">
-                  <div className="mr-4 bg-blue-100 p-2 rounded-full">
-                    <Map className="h-5 w-5 text-blue-600" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="text-sm font-medium leading-none">
-                      New plot registered: Plot 7
-                    </p>
-                    <p className="text-sm text-muted-foreground">
-                      {format(
-                        new Date(Date.now() - 5 * 24 * 60 * 60 * 1000),
-                        "MMMM d, yyyy"
-                      )}
-                    </p>
-                  </div>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+        )}
 
         {/* Plots Tab Content */}
-        <TabsContent value="plots">
+        {activeTab === "plots" && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Plot Management</CardTitle>
                 <CardDescription>
@@ -693,9 +776,9 @@ function AdminDashboard() {
               </div>
               <Button
                 onClick={handleAddPlot}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
-                <Plus className="h-4 w-4" /> Add New Plot
+                <Plus className="h-4 w-4" /> Add Plot
               </Button>
             </CardHeader>
             <CardContent>
@@ -704,18 +787,24 @@ function AdminDashboard() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Plot ID</TableHead>
+                        <TableHead>ID</TableHead>
                         <TableHead>Owner</TableHead>
-                        <TableHead>Size (acres)</TableHead>
-                        <TableHead>Location</TableHead>
-                        <TableHead>Soil Type</TableHead>
-                        <TableHead>Lease Period</TableHead>
+                        <TableHead>Size</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Location
+                        </TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Soil Type
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Lease Period
+                        </TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -733,16 +822,15 @@ function AdminDashboard() {
                             </TableCell>
                             <TableCell>{plot.owner_id}</TableCell>
                             <TableCell>{plot.size}</TableCell>
-                            <TableCell>{plot.location}</TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {plot.location}
+                            </TableCell>
+                            <TableCell className="hidden md:table-cell">
                               {getSoilTypeBadge(plot.soil_type)}
                             </TableCell>
-                            <TableCell>
-                              {format(
-                                new Date(plot.lease_start),
-                                "MMM d, yyyy"
-                              )}{" "}
-                              -{format(new Date(plot.lease_end), "MMM d, yyyy")}
+                            <TableCell className="hidden lg:table-cell">
+                              {format(new Date(plot.lease_start), "MMM d")} -{" "}
+                              {format(new Date(plot.lease_end), "MMM d")}
                             </TableCell>
                             <TableCell>
                               <Badge
@@ -797,12 +885,12 @@ function AdminDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
         {/* Crops Tab Content */}
-        <TabsContent value="crops">
+        {activeTab === "crops" && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Crop Management</CardTitle>
                 <CardDescription>
@@ -811,9 +899,9 @@ function AdminDashboard() {
               </div>
               <Button
                 onClick={handleAddCrop}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
-                <Plus className="h-4 w-4" /> Add New Crop
+                <Plus className="h-4 w-4" /> Add Crop
               </Button>
             </CardHeader>
             <CardContent>
@@ -822,18 +910,24 @@ function AdminDashboard() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Name</TableHead>
-                        <TableHead>Variety</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Variety
+                        </TableHead>
                         <TableHead>Plot</TableHead>
-                        <TableHead>Planting Date</TableHead>
-                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Planting
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Harvest
+                        </TableHead>
                         <TableHead>Status</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -850,14 +944,16 @@ function AdminDashboard() {
                               {crop.crop_id}
                             </TableCell>
                             <TableCell>{crop.name}</TableCell>
-                            <TableCell>{crop.variety || "N/A"}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {crop.variety || "N/A"}
+                            </TableCell>
                             <TableCell>
                               {crop.plot?.location || crop.plot_id}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
                               {formatDate(crop.planting_date)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden lg:table-cell">
                               {formatDate(crop.harvest_date)}
                             </TableCell>
                             <TableCell>
@@ -905,12 +1001,12 @@ function AdminDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
         {/* Harvest Schedule Tab Content */}
-        <TabsContent value="schedule">
+        {activeTab === "schedule" && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Harvest Schedule Management</CardTitle>
                 <CardDescription>
@@ -919,9 +1015,9 @@ function AdminDashboard() {
               </div>
               <Button
                 onClick={handleAddSchedule}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
-                <Plus className="h-4 w-4" /> Add New Schedule
+                <Plus className="h-4 w-4" /> Add Schedule
               </Button>
             </CardHeader>
             <CardContent>
@@ -930,16 +1026,20 @@ function AdminDashboard() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Plot</TableHead>
                         <TableHead>Crop</TableHead>
-                        <TableHead>Expected Harvest</TableHead>
-                        <TableHead>Actual Harvest</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Expected
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Actual
+                        </TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -963,10 +1063,10 @@ function AdminDashboard() {
                               {schedule.crop?.name ||
                                 `Crop #${schedule.crop_id}`}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
                               {formatDate(schedule.expected_harvest_date)}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden lg:table-cell">
                               {schedule.actual_harvest_date ? (
                                 formatDate(schedule.actual_harvest_date)
                               ) : (
@@ -1015,12 +1115,12 @@ function AdminDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
         {/* Crop Rotation Tab Content */}
-        <TabsContent value="rotations">
+        {activeTab === "rotations" && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Crop Rotation Management</CardTitle>
                 <CardDescription>
@@ -1029,9 +1129,9 @@ function AdminDashboard() {
               </div>
               <Button
                 onClick={handleAddRotation}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
-                <Plus className="h-4 w-4" /> Add New Rotation
+                <Plus className="h-4 w-4" /> Add Rotation
               </Button>
             </CardHeader>
             <CardContent>
@@ -1040,16 +1140,20 @@ function AdminDashboard() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Plot</TableHead>
-                        <TableHead>Previous Crop</TableHead>
-                        <TableHead>Next Crop</TableHead>
-                        <TableHead>Rotation Date</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Previous
+                        </TableHead>
+                        <TableHead>Next</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Date
+                        </TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1069,9 +1173,11 @@ function AdminDashboard() {
                             <TableCell>
                               {rotation.plot?.plot_id || rotation.plot_id}
                             </TableCell>
-                            <TableCell>{rotation.previous_crop}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {rotation.previous_crop}
+                            </TableCell>
                             <TableCell>{rotation.next_crop}</TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
                               {formatDate(rotation.rotation_date)}
                             </TableCell>
                             <TableCell>
@@ -1116,12 +1222,12 @@ function AdminDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
         {/* Activity Logs Tab Content */}
-        <TabsContent value="activities">
+        {activeTab === "activities" && (
           <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+            <CardHeader className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
               <div>
                 <CardTitle>Activity Log Management</CardTitle>
                 <CardDescription>
@@ -1130,9 +1236,9 @@ function AdminDashboard() {
               </div>
               <Button
                 onClick={handleAddActivity}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 whitespace-nowrap"
               >
-                <Plus className="h-4 w-4" /> Add New Activity
+                <Plus className="h-4 w-4" /> Add Activity
               </Button>
             </CardHeader>
             <CardContent>
@@ -1141,16 +1247,20 @@ function AdminDashboard() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : (
-                <div className="rounded-md border">
+                <div className="rounded-md border overflow-x-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>ID</TableHead>
                         <TableHead>Plot</TableHead>
-                        <TableHead>Activity Type</TableHead>
-                        <TableHead>Date</TableHead>
-                        <TableHead>Notes</TableHead>
-                        <TableHead className="w-[100px]">Actions</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Date
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Notes
+                        </TableHead>
+                        <TableHead>Actions</TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -1181,8 +1291,10 @@ function AdminDashboard() {
                                 {activity.type}
                               </Badge>
                             </TableCell>
-                            <TableCell>{formatDate(activity.date)}</TableCell>
-                            <TableCell className="max-w-[200px] truncate">
+                            <TableCell className="hidden md:table-cell">
+                              {formatDate(activity.date)}
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell max-w-[200px] truncate">
                               {activity.notes || "No notes"}
                             </TableCell>
                             <TableCell>
@@ -1227,10 +1339,10 @@ function AdminDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        )}
 
         {/* Farmers Tab Content */}
-        <TabsContent value="farmers">
+        {activeTab === "farmers" && (
           <Card>
             <CardHeader>
               <CardTitle>Farmer Management</CardTitle>
@@ -1244,13 +1356,14 @@ function AdminDashboard() {
               </p>
             </CardContent>
           </Card>
-        </TabsContent>
-      </Tabs>
+        )}
+      </div>
 
+      {/* Modal section - Make all modals responsive */}
       {/* Plot Card Modal */}
       {showPlotCard && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Plot</h2>
               <Button
@@ -1269,10 +1382,10 @@ function AdminDashboard() {
         </div>
       )}
 
-      {/* Plot Edit Form Modal */}
+      {/* Plot Edit Form Modal - make responsive */}
       {showPlotEditForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Edit Plot</h2>
               <Button
@@ -1292,10 +1405,11 @@ function AdminDashboard() {
         </div>
       )}
 
+      {/* Make all other modals responsive as well */}
       {/* Crop Form Modal */}
       {showCropForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Crop</h2>
               <Button
@@ -1317,8 +1431,8 @@ function AdminDashboard() {
 
       {/* Crop Edit Form Modal */}
       {showCropEditForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Edit Crop</h2>
               <Button
@@ -1341,8 +1455,8 @@ function AdminDashboard() {
 
       {/* Harvest Schedule Form Modal */}
       {showScheduleForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Harvest Schedule</h2>
               <Button
@@ -1364,8 +1478,8 @@ function AdminDashboard() {
 
       {/* Harvest Schedule Edit Form Modal */}
       {showScheduleEditForm && selectedSchedule && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Edit Harvest Schedule</h2>
               <Button
@@ -1388,8 +1502,8 @@ function AdminDashboard() {
 
       {/* Crop Rotation Form Modal */}
       {showRotationForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Crop Rotation</h2>
               <Button
@@ -1411,8 +1525,8 @@ function AdminDashboard() {
 
       {/* Crop Rotation Edit Form Modal */}
       {showRotationEditForm && selectedRotation && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Edit Crop Rotation</h2>
               <Button
@@ -1435,8 +1549,8 @@ function AdminDashboard() {
 
       {/* Activity Log Form Modal */}
       {showActivityForm && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Add New Activity Log</h2>
               <Button
@@ -1458,8 +1572,8 @@ function AdminDashboard() {
 
       {/* Activity Log Edit Form Modal */}
       {showActivityEditForm && selectedActivity && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-4 rounded-lg max-w-2xl w-full">
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white p-4 rounded-lg w-full max-w-2xl max-h-[90vh] overflow-y-auto">
             <div className="flex justify-between items-center mb-4">
               <h2 className="text-xl font-bold">Edit Activity Log</h2>
               <Button

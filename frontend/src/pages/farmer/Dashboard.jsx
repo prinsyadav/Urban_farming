@@ -10,7 +10,6 @@ import {
   CardDescription,
   CardHeader,
   CardTitle,
-  CardFooter,
 } from "@/components/ui/card";
 import {
   Table,
@@ -32,8 +31,10 @@ import {
   Droplets,
   Loader2,
   Info,
-  Download,
+  Menu,
 } from "lucide-react";
+import { ScrollArea } from "@/components/ui/scroll-area";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 
 function FarmerDashboard() {
   const { user, isLoaded: isUserLoaded } = useUser();
@@ -109,9 +110,7 @@ function FarmerDashboard() {
     setIsLoading(true);
     try {
       // Use the owner-specific endpoint
-      const response = await fetch(
-        `${API_URL}/api/plots/owner/${farmerId}`
-      );
+      const response = await fetch(`${API_URL}/api/plots/owner/${farmerId}`);
 
       if (response.status === 404) {
         // No plots found for this owner
@@ -315,8 +314,8 @@ function FarmerDashboard() {
   // Check if user is a farmer
   if (isUserLoaded && !isRole) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <Card className="w-[450px] text-center">
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Card className="w-full max-w-[450px] text-center">
           <CardHeader>
             <CardTitle>Access Denied</CardTitle>
             <CardDescription>
@@ -346,7 +345,7 @@ function FarmerDashboard() {
   // Handle no plots found
   if (isUserLoaded && plots.length === 0) {
     return (
-      <div className="container mx-auto py-6 px-4">
+      <div className="container mx-auto py-4 sm:py-6 px-3 sm:px-4">
         <Card>
           <CardHeader>
             <CardTitle>Welcome, {user.firstName || "Farmer"}</CardTitle>
@@ -366,55 +365,145 @@ function FarmerDashboard() {
   }
 
   return (
-    <div className="container mx-auto py-6 px-4">
+    <div className="container mx-auto py-4 px-3 md:py-6 md:px-4">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">
+          <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
             Farmer Dashboard
           </h1>
           <p className="text-muted-foreground">
             Welcome back, {user.firstName || farmerId}
           </p>
         </div>
+
+        {/* Mobile Menu Button */}
+        <div className="md:hidden">
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="sm">
+                <Menu className="h-5 w-5" />
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+              <div className="py-4">
+                <div className="space-y-1 flex flex-col">
+                  <Button
+                    variant={activeTab === "overview" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("overview")}
+                  >
+                    <LayoutDashboard className="h-4 w-4 mr-2" /> Overview
+                  </Button>
+                  <Button
+                    variant={activeTab === "plots" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("plots")}
+                  >
+                    <Map className="h-4 w-4 mr-2" /> Plots
+                  </Button>
+                  <Button
+                    variant={activeTab === "crops" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("crops")}
+                  >
+                    <Sprout className="h-4 w-4 mr-2" /> Crops
+                  </Button>
+                  <Button
+                    variant={activeTab === "schedule" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("schedule")}
+                  >
+                    <Calendar className="h-4 w-4 mr-2" /> Schedules
+                  </Button>
+                  <Button
+                    variant={activeTab === "rotations" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("rotations")}
+                  >
+                    <RotateCw className="h-4 w-4 mr-2" /> Rotations
+                  </Button>
+                  <Button
+                    variant={activeTab === "activities" ? "default" : "ghost"}
+                    className="justify-start"
+                    onClick={() => setActiveTab("activities")}
+                  >
+                    <Droplets className="h-4 w-4 mr-2" /> Activities
+                  </Button>
+                </div>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
       </div>
 
-      {/* Dashboard Tabs */}
-      <Tabs
-        defaultValue="overview"
-        value={activeTab}
-        onValueChange={setActiveTab}
-        className="mb-6"
-      >
-        <TabsList className="grid grid-cols-6 w-[800px]">
-          <TabsTrigger value="overview">
-            <LayoutDashboard className="h-4 w-4 mr-2" />
-            Overview
-          </TabsTrigger>
-          <TabsTrigger value="plots">
-            <Map className="h-4 w-4 mr-2" />
-            Plots
-          </TabsTrigger>
-          <TabsTrigger value="crops">
-            <Sprout className="h-4 w-4 mr-2" />
-            Crops
-          </TabsTrigger>
-          <TabsTrigger value="schedule">
-            <Calendar className="h-4 w-4 mr-2" />
-            Schedules
-          </TabsTrigger>
-          <TabsTrigger value="rotations">
-            <RotateCw className="h-4 w-4 mr-2" />
-            Rotations
-          </TabsTrigger>
-          <TabsTrigger value="activities">
-            <Droplets className="h-4 w-4 mr-2" />
-            Activities
-          </TabsTrigger>
-        </TabsList>
+      {/* Dashboard Tabs - Desktop Only */}
+      <div className="hidden md:block">
+        <Tabs
+          defaultValue="overview"
+          value={activeTab}
+          onValueChange={setActiveTab}
+          className="mb-6"
+        >
+          <TabsList className="grid grid-cols-6 w-full max-w-4xl">
+            <TabsTrigger value="overview">
+              <LayoutDashboard className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Overview</span>
+            </TabsTrigger>
+            <TabsTrigger value="plots">
+              <Map className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Plots</span>
+            </TabsTrigger>
+            <TabsTrigger value="crops">
+              <Sprout className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Crops</span>
+            </TabsTrigger>
+            <TabsTrigger value="schedule">
+              <Calendar className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Schedules</span>
+            </TabsTrigger>
+            <TabsTrigger value="rotations">
+              <RotateCw className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Rotations</span>
+            </TabsTrigger>
+            <TabsTrigger value="activities">
+              <Droplets className="h-4 w-4 mr-2" />
+              <span className="hidden sm:inline">Activities</span>
+            </TabsTrigger>
+          </TabsList>
+        </Tabs>
+      </div>
 
-        {/* Overview Tab Content */}
-        <TabsContent value="overview" className="space-y-4">
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      {/* Mobile Tab Indicator */}
+      <div className="md:hidden mb-4">
+        <Card>
+          <CardHeader className="py-2 px-4">
+            <div className="flex items-center space-x-1">
+              {activeTab === "overview" && (
+                <LayoutDashboard className="h-4 w-4 mr-1" />
+              )}
+              {activeTab === "plots" && <Map className="h-4 w-4 mr-1" />}
+              {activeTab === "crops" && <Sprout className="h-4 w-4 mr-1" />}
+              {activeTab === "schedule" && (
+                <Calendar className="h-4 w-4 mr-1" />
+              )}
+              {activeTab === "rotations" && (
+                <RotateCw className="h-4 w-4 mr-1" />
+              )}
+              {activeTab === "activities" && (
+                <Droplets className="h-4 w-4 mr-1" />
+              )}
+              <span className="text-sm font-medium">
+                {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
+              </span>
+            </div>
+          </CardHeader>
+        </Card>
+      </div>
+
+      {/* Overview Tab Content */}
+      {activeTab === "overview" && (
+        <div className="space-y-4">
+          <div className="grid gap-4 grid-cols-2 sm:grid-cols-2 lg:grid-cols-4">
             <Card>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">My Plots</CardTitle>
@@ -537,27 +626,35 @@ function FarmerDashboard() {
               )}
             </CardContent>
           </Card>
-        </TabsContent>
+        </div>
+      )}
 
-        {/* Plots Tab Content */}
-        <TabsContent value="plots">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Plots</CardTitle>
-              <CardDescription>
-                View all your assigned plots and their details
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="rounded-md border">
+      {/* Plots Tab Content */}
+      {activeTab === "plots" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>My Plots</CardTitle>
+            <CardDescription>
+              View all your assigned plots and their details
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            <ScrollArea className="w-full rounded-md border">
+              <div className="w-full overflow-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
                       <TableHead>Plot ID</TableHead>
-                      <TableHead>Size (acres)</TableHead>
-                      <TableHead>Location</TableHead>
-                      <TableHead>Soil Type</TableHead>
-                      <TableHead>Lease Period</TableHead>
+                      <TableHead>Size</TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Location
+                      </TableHead>
+                      <TableHead className="hidden md:table-cell">
+                        Soil Type
+                      </TableHead>
+                      <TableHead className="hidden lg:table-cell">
+                        Lease Period
+                      </TableHead>
                       <TableHead>Status</TableHead>
                     </TableRow>
                   </TableHeader>
@@ -568,13 +665,15 @@ function FarmerDashboard() {
                           {plot.plot_id}
                         </TableCell>
                         <TableCell>{plot.size}</TableCell>
-                        <TableCell>{plot.location}</TableCell>
-                        <TableCell>
+                        <TableCell className="hidden md:table-cell">
+                          {plot.location}
+                        </TableCell>
+                        <TableCell className="hidden md:table-cell">
                           {getSoilTypeBadge(plot.soil_type)}
                         </TableCell>
-                        <TableCell>
-                          {formatDate(plot.lease_start)} -{" "}
-                          {formatDate(plot.lease_end)}
+                        <TableCell className="hidden lg:table-cell">
+                          {formatDate(plot.lease_start).split(" ")[0]} -{" "}
+                          {formatDate(plot.lease_end).split(" ")[0]}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -590,34 +689,42 @@ function FarmerDashboard() {
                   </TableBody>
                 </Table>
               </div>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            </ScrollArea>
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Crops Tab Content */}
-        <TabsContent value="crops">
-          <Card>
-            <CardHeader>
-              <CardTitle>My Crops</CardTitle>
-              <CardDescription>
-                View all crops planted in your plots
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isCropsLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="rounded-md border">
+      {/* Crops Tab Content */}
+      {activeTab === "crops" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>My Crops</CardTitle>
+            <CardDescription>
+              View all crops planted in your plots
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isCropsLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ScrollArea className="w-full rounded-md border">
+                <div className="w-full overflow-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Name</TableHead>
-                        <TableHead>Variety</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Variety
+                        </TableHead>
                         <TableHead>Plot</TableHead>
-                        <TableHead>Planting Date</TableHead>
-                        <TableHead>Expected Harvest</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Planted
+                        </TableHead>
+                        <TableHead className="hidden lg:table-cell">
+                          Harvest
+                        </TableHead>
                         <TableHead>Status</TableHead>
                       </TableRow>
                     </TableHeader>
@@ -634,13 +741,15 @@ function FarmerDashboard() {
                             <TableCell className="font-medium">
                               {crop.name}
                             </TableCell>
-                            <TableCell>{crop.variety || "N/A"}</TableCell>
-                            <TableCell>{crop.plot_id}</TableCell>
-                            <TableCell>
-                              {formatDate(crop.planting_date)}
+                            <TableCell className="hidden md:table-cell">
+                              {crop.variety || "N/A"}
                             </TableCell>
-                            <TableCell>
-                              {formatDate(crop.harvest_date)}
+                            <TableCell>{crop.plot_id}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {formatDate(crop.planting_date).split(" ")[0]}
+                            </TableCell>
+                            <TableCell className="hidden lg:table-cell">
+                              {formatDate(crop.harvest_date).split(" ")[0]}
                             </TableCell>
                             <TableCell>
                               {getCropStatusBadge(crop.status)}
@@ -651,34 +760,38 @@ function FarmerDashboard() {
                     </TableBody>
                   </Table>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Harvest Schedule Tab Content */}
-        <TabsContent value="schedule">
-          <Card>
-            <CardHeader>
-              <CardTitle>Harvest Schedules</CardTitle>
-              <CardDescription>
-                View upcoming harvests for your plots
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isSchedulesLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="rounded-md border">
+      {/* Harvest Schedule Tab Content */}
+      {activeTab === "schedule" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Harvest Schedules</CardTitle>
+            <CardDescription>
+              View upcoming harvests for your plots
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isSchedulesLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ScrollArea className="w-full rounded-md border">
+                <div className="w-full overflow-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Plot</TableHead>
                         <TableHead>Crop</TableHead>
-                        <TableHead>Expected Harvest</TableHead>
-                        <TableHead>Actual Harvest</TableHead>
+                        <TableHead>Expected</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Actual
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -697,11 +810,17 @@ function FarmerDashboard() {
                                 `Crop #${schedule.crop_id}`}
                             </TableCell>
                             <TableCell>
-                              {formatDate(schedule.expected_harvest_date)}
+                              {
+                                formatDate(
+                                  schedule.expected_harvest_date
+                                ).split(" ")[0]
+                              }
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
                               {schedule.actual_harvest_date ? (
-                                formatDate(schedule.actual_harvest_date)
+                                formatDate(schedule.actual_harvest_date).split(
+                                  " "
+                                )[0]
                               ) : (
                                 <Badge variant="outline">Not harvested</Badge>
                               )}
@@ -712,34 +831,40 @@ function FarmerDashboard() {
                     </TableBody>
                   </Table>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Crop Rotation Tab Content */}
-        <TabsContent value="rotations">
-          <Card>
-            <CardHeader>
-              <CardTitle>Crop Rotations</CardTitle>
-              <CardDescription>
-                View crop rotation plans for your plots
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isRotationsLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="rounded-md border">
+      {/* Crop Rotation Tab Content */}
+      {activeTab === "rotations" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Crop Rotations</CardTitle>
+            <CardDescription>
+              View crop rotation plans for your plots
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isRotationsLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ScrollArea className="w-full rounded-md border">
+                <div className="w-full overflow-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
                         <TableHead>Plot</TableHead>
-                        <TableHead>Previous Crop</TableHead>
-                        <TableHead>Next Crop</TableHead>
-                        <TableHead>Rotation Date</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Previous
+                        </TableHead>
+                        <TableHead>Next</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Rotation Date
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -753,10 +878,12 @@ function FarmerDashboard() {
                         cropRotations.map((rotation) => (
                           <TableRow key={rotation.rotation_id}>
                             <TableCell>{rotation.plot_id}</TableCell>
-                            <TableCell>{rotation.previous_crop}</TableCell>
+                            <TableCell className="hidden md:table-cell">
+                              {rotation.previous_crop}
+                            </TableCell>
                             <TableCell>{rotation.next_crop}</TableCell>
-                            <TableCell>
-                              {formatDate(rotation.rotation_date)}
+                            <TableCell className="hidden md:table-cell">
+                              {formatDate(rotation.rotation_date).split(" ")[0]}
                             </TableCell>
                           </TableRow>
                         ))
@@ -764,34 +891,38 @@ function FarmerDashboard() {
                     </TableBody>
                   </Table>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
-        {/* Activity Logs Tab Content */}
-        <TabsContent value="activities">
-          <Card>
-            <CardHeader>
-              <CardTitle>Activity Logs</CardTitle>
-              <CardDescription>
-                View all activities performed on your plots
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              {isActivitiesLoading ? (
-                <div className="flex justify-center items-center py-8">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                </div>
-              ) : (
-                <div className="rounded-md border">
+      {/* Activity Logs Tab Content */}
+      {activeTab === "activities" && (
+        <Card>
+          <CardHeader>
+            <CardTitle>Activity Logs</CardTitle>
+            <CardDescription>
+              View all activities performed on your plots
+            </CardDescription>
+          </CardHeader>
+          <CardContent>
+            {isActivitiesLoading ? (
+              <div className="flex justify-center items-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <ScrollArea className="w-full rounded-md border">
+                <div className="w-full overflow-auto">
                   <Table>
                     <TableHeader>
                       <TableRow>
-                        <TableHead>Plot</TableHead>
-                        <TableHead>Activity Type</TableHead>
                         <TableHead>Date</TableHead>
-                        <TableHead>Notes</TableHead>
+                        <TableHead>Plot</TableHead>
+                        <TableHead>Type</TableHead>
+                        <TableHead className="hidden md:table-cell">
+                          Notes
+                        </TableHead>
                       </TableRow>
                     </TableHeader>
                     <TableBody>
@@ -804,6 +935,9 @@ function FarmerDashboard() {
                       ) : (
                         activityLogs.map((activity) => (
                           <TableRow key={activity.activity_id}>
+                            <TableCell>
+                              {formatDate(activity.date).split(" ")[0]}
+                            </TableCell>
                             <TableCell>{activity.plot_id}</TableCell>
                             <TableCell>
                               <Badge
@@ -816,8 +950,7 @@ function FarmerDashboard() {
                                 {activity.type}
                               </Badge>
                             </TableCell>
-                            <TableCell>{formatDate(activity.date)}</TableCell>
-                            <TableCell className="max-w-[300px] truncate">
+                            <TableCell className="hidden md:table-cell max-w-[200px] truncate">
                               {activity.notes || "No notes"}
                             </TableCell>
                           </TableRow>
@@ -826,11 +959,11 @@ function FarmerDashboard() {
                     </TableBody>
                   </Table>
                 </div>
-              )}
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              </ScrollArea>
+            )}
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
