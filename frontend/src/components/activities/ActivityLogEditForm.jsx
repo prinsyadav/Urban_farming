@@ -57,7 +57,7 @@ export function ActivityLogEditForm({
 
     try {
       const response = await fetch(
-        `${API_URL}/api/activity-logs/${activity.activity_id}`,
+        `9/api/activity-logs/${activity.activity_id}`,
         {
           method: "PUT",
           headers: {
