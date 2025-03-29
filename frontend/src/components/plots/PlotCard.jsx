@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "@/config/apiConfig";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -85,7 +86,7 @@ export function FarmPlotCard({ onPlotAdded, onCancel }) {
     console.log("Submitting plot data:", submissionData);
 
     try {
-      const response = await fetch("http://localhost:3000/api/plots", {
+      const response = await fetch("${API_URL}/api/plots", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

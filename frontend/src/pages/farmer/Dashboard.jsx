@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useUser } from "@clerk/clerk-react";
 import { toast } from "sonner";
 import { format } from "date-fns";
+import API_URL from "@/config/apiConfig";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   Card,
@@ -109,7 +110,7 @@ function FarmerDashboard() {
     try {
       // Use the owner-specific endpoint
       const response = await fetch(
-        `http://localhost:3000/api/plots/owner/${farmerId}`
+        `${API_URL}/api/plots/owner/${farmerId}`
       );
 
       if (response.status === 404) {
@@ -153,7 +154,7 @@ function FarmerDashboard() {
       // Fetch crops for each plot
       for (const plot of plotsData) {
         const response = await fetch(
-          `http://localhost:3000/api/crops/plot/${plot.plot_id}`
+          `${API_URL}/api/crops/plot/${plot.plot_id}`
         );
 
         if (response.ok) {
@@ -187,7 +188,7 @@ function FarmerDashboard() {
       // Fetch schedules for each plot
       for (const plot of plots) {
         const response = await fetch(
-          `http://localhost:3000/api/harvest-schedules/plot/${plot.plot_id}`
+          `${API_URL}/api/harvest-schedules/plot/${plot.plot_id}`
         );
 
         if (response.ok) {
@@ -221,7 +222,7 @@ function FarmerDashboard() {
       // Fetch rotations for each plot
       for (const plot of plots) {
         const response = await fetch(
-          `http://localhost:3000/api/crop-rotations/plot/${plot.plot_id}`
+          `${API_URL}/api/crop-rotations/plot/${plot.plot_id}`
         );
 
         if (response.ok) {
@@ -255,7 +256,7 @@ function FarmerDashboard() {
       // Fetch activities for each plot
       for (const plot of plots) {
         const response = await fetch(
-          `http://localhost:3000/api/activity-logs/plot/${plot.plot_id}`
+          `${API_URL}/api/activity-logs/plot/${plot.plot_id}`
         );
 
         if (response.ok) {

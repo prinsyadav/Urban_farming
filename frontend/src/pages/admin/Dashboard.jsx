@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import API_URL from "@/config/apiConfig";
 import { useUser } from "@clerk/clerk-react";
 import { FarmPlotCard } from "../../components/plots/PlotCard";
 import { toast } from "sonner";
@@ -123,7 +124,7 @@ function AdminDashboard() {
   const fetchPlots = async () => {
     setIsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/plots");
+      const response = await fetch("${API_URL}/api/plots");
       if (!response.ok) {
         throw new Error("Failed to fetch plots");
       }
@@ -154,7 +155,7 @@ function AdminDashboard() {
   const fetchCrops = async () => {
     setIsCropsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/crops");
+      const response = await fetch("${API_URL}/api/crops");
       if (!response.ok) {
         throw new Error("Failed to fetch crops");
       }
@@ -173,7 +174,7 @@ function AdminDashboard() {
     setIsSchedulesLoading(true);
     try {
       const response = await fetch(
-        "http://localhost:3000/api/harvest-schedules"
+        "${API_URL}/api/harvest-schedules"
       );
       if (!response.ok) {
         throw new Error("Failed to fetch harvest schedules");
@@ -192,7 +193,7 @@ function AdminDashboard() {
   const fetchCropRotations = async () => {
     setIsRotationsLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/crop-rotations");
+      const response = await fetch("${API_URL}/api/crop-rotations");
       if (!response.ok) {
         throw new Error("Failed to fetch crop rotations");
       }
@@ -210,7 +211,7 @@ function AdminDashboard() {
   const fetchActivityLogs = async () => {
     setIsActivitiesLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/activity-logs");
+      const response = await fetch("${API_URL}/api/activity-logs");
       if (!response.ok) {
         throw new Error("Failed to fetch activity logs");
       }
@@ -255,7 +256,7 @@ function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/plots/${plotId}`,
+        `${API_URL}/api/plots/${plotId}`,
         {
           method: "DELETE",
         }
@@ -304,7 +305,7 @@ function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/crops/${cropId}`,
+        `${API_URL}/api/crops/${cropId}`,
         {
           method: "DELETE",
         }
@@ -357,7 +358,7 @@ function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/harvest-schedules/${scheduleId}`,
+        `${API_URL}/api/harvest-schedules/${scheduleId}`,
         { method: "DELETE" }
       );
 
@@ -400,7 +401,7 @@ function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/crop-rotations/${rotationId}`,
+        `${API_URL}/api/crop-rotations/${rotationId}`,
         { method: "DELETE" }
       );
 
@@ -443,7 +444,7 @@ function AdminDashboard() {
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/activity-logs/${activityId}`,
+        `${API_URL}/api/activity-logs/${activityId}`,
         { method: "DELETE" }
       );
 

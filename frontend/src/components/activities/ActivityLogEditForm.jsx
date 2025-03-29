@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "@/config/apiConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
@@ -56,7 +57,7 @@ export function ActivityLogEditForm({
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/activity-logs/${activity.activity_id}`,
+        `${API_URL}/api/activity-logs/${activity.activity_id}`,
         {
           method: "PUT",
           headers: {

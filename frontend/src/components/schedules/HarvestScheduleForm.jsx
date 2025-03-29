@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { toast } from "sonner";
+import API_URL from "@/config/apiConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -44,7 +45,7 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
     setIsLoadingCrops(true);
     try {
       const response = await fetch(
-        `http://localhost:3000/api/crops/plot/${plotId}`
+        `${API_URL}/api/crops/plot/${plotId}`
       );
       if (!response.ok) {
         throw new Error("Failed to fetch crops for this plot");
@@ -80,7 +81,7 @@ export function HarvestScheduleForm({ onScheduleAdded, onCancel, plots = [] }) {
 
     try {
       const response = await fetch(
-        "http://localhost:3000/api/harvest-schedules",
+        "${API_URL}/api/harvest-schedules",
         {
           method: "POST",
           headers: {

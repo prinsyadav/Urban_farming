@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import API_URL from "@/config/apiConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -72,7 +73,7 @@ export function CropEditForm({ crop, plots, onCropUpdated, onCancel }) {
       setIsLoading(true);
 
       const response = await fetch(
-        `http://localhost:3000/api/crops/${crop.crop_id}`,
+        `${API_URL}/api/crops/${crop.crop_id}`,
         {
           method: "PUT",
           headers: {

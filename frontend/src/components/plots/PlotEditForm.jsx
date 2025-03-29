@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import API_URL from "@/config/apiConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -74,7 +75,7 @@ export function PlotEditForm({ plot, onPlotUpdated, onCancel }) {
       setIsLoading(true);
 
       const response = await fetch(
-        `http://localhost:3000/api/plots/${plot.plot_id}`,
+        `${API_URL}/api/plots/${plot.plot_id}`,
         {
           method: "PUT",
           headers: {

@@ -50,7 +50,7 @@ export function CropForm({ onCropAdded, plots, onCancel }) {
     try {
       setIsLoading(true);
 
-      const response = await fetch("http://localhost:3000/api/crops", {
+      const response = await fetch("${API_URL}/api/crops", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

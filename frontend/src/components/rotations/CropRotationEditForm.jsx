@@ -9,6 +9,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import API_URL from "@/config/apiConfig";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -74,7 +75,7 @@ export function CropRotationEditForm({
 
     try {
       const response = await fetch(
-        `http://localhost:3000/api/crop-rotations/${rotation.rotation_id}`,
+        `${API_URL}/api/crop-rotations/${rotation.rotation_id}`,
         {
           method: "PUT",
           headers: {

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import API_URL from "@/config/apiConfig";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,7 +52,7 @@ export function ActivityLogForm({ onActivityAdded, onCancel, plots = [] }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/activity-logs", {
+      const response = await fetch('${API_URL}/api/activity-logs', {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { toast } from "sonner";
+import API_URL from "@/config/apiConfig";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -67,7 +68,7 @@ export function CropRotationForm({ onRotationAdded, onCancel, plots = [] }) {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("http://localhost:3000/api/crop-rotations", {
+      const response = await fetch("${API_URL}/api/crop-rotations", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

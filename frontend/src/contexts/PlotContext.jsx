@@ -1,5 +1,6 @@
 import { createContext, useState, useContext, useEffect } from "react";
 import { toast } from "sonner";
+import API_URL from "@/config/apiConfig";
 
 export const PlotContext = createContext();
 
@@ -11,7 +12,7 @@ export const PlotProvider = ({ children }) => {
   const fetchPlots = async () => {
     setLoading(true);
     try {
-      const response = await fetch("http://localhost:3000/api/plots");
+      const response = await fetch("${API_URL}/api/plots");
       if (!response.ok) {
         throw new Error("Failed to fetch plots");
       }
@@ -28,7 +29,7 @@ export const PlotProvider = ({ children }) => {
   // Add a new plot
   const addPlot = async (plotData) => {
     try {
-      const response = await fetch("http://localhost:3000/api/plots", {
+      const response = await fetch("${API_URL}/api/plots", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -53,7 +54,7 @@ export const PlotProvider = ({ children }) => {
   const deletePlot = async (plotId) => {
     try {
       const response = await fetch(
-        `http://localhost:3000/api/plots/${plotId}`,
+        `${API_URL}/api/plots/${plotId}`,
         {
           method: "DELETE",
         }
