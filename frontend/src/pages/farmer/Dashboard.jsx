@@ -672,8 +672,8 @@ function FarmerDashboard() {
                           {getSoilTypeBadge(plot.soil_type)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          {formatDate(plot.lease_start).split(" ")[0]} -{" "}
-                          {formatDate(plot.lease_end).split(" ")[0]}
+                          {formatDate(plot.lease_start)} -{" "}
+                          {formatDate(plot.lease_end)}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -746,10 +746,10 @@ function FarmerDashboard() {
                             </TableCell>
                             <TableCell>{crop.plot_id}</TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {formatDate(crop.planting_date).split(" ")[0]}
+                              {formatDate(crop.planting_date)}
                             </TableCell>
                             <TableCell className="hidden lg:table-cell">
-                              {formatDate(crop.harvest_date).split(" ")[0]}
+                              {formatDate(crop.harvest_date)}
                             </TableCell>
                             <TableCell>
                               {getCropStatusBadge(crop.status)}
@@ -810,17 +810,11 @@ function FarmerDashboard() {
                                 `Crop #${schedule.crop_id}`}
                             </TableCell>
                             <TableCell>
-                              {
-                                formatDate(
-                                  schedule.expected_harvest_date
-                                ).split(" ")[0]
-                              }
+                              {formatDate(schedule.expected_harvest_date)}
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               {schedule.actual_harvest_date ? (
-                                formatDate(schedule.actual_harvest_date).split(
-                                  " "
-                                )[0]
+                                formatDate(schedule.actual_harvest_date)
                               ) : (
                                 <Badge variant="outline">Not harvested</Badge>
                               )}
@@ -883,7 +877,7 @@ function FarmerDashboard() {
                             </TableCell>
                             <TableCell>{rotation.next_crop}</TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {formatDate(rotation.rotation_date).split(" ")[0]}
+                              {formatDate(rotation.rotation_date)}
                             </TableCell>
                           </TableRow>
                         ))
@@ -935,9 +929,7 @@ function FarmerDashboard() {
                       ) : (
                         activityLogs.map((activity) => (
                           <TableRow key={activity.activity_id}>
-                            <TableCell>
-                              {formatDate(activity.date).split(" ")[0]}
-                            </TableCell>
+                            <TableCell>{formatDate(activity.date)}</TableCell>
                             <TableCell>{activity.plot_id}</TableCell>
                             <TableCell>
                               <Badge
