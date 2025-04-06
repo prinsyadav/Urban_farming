@@ -60,6 +60,8 @@
 
 // 2
 
+require("dotenv").config();
+
 const express = require("express");
 const app = express();
 const port = process.env.PORT || 3000;
@@ -70,6 +72,11 @@ const activityLogRoutes = require("./routes/activityLogRoutes");
 const harvestScheduleRoutes = require("./routes/harvestScheduleRoutes");
 const cropRotationRoutes = require("./routes/cropRotationRoutes");
 const clerkWebhookRoutes = require("./routes/clerkWebhookRoutes");
+
+// For debugging
+console.log("Starting server with environment:");
+console.log("CLERK_SECRET_KEY exists:", !!process.env.CLERK_SECRET_KEY);
+console.log("CLERK_WEBHOOK_SECRET exists:", !!process.env.CLERK_WEBHOOK_SECRET);
 
 // Allow CORS with specific origins
 app.use((req, res, next) => {
@@ -83,7 +90,7 @@ app.use((req, res, next) => {
   if (allowedOrigins.includes(origin)) {
     res.header("Access-Control-Allow-Origin", origin);
   } else {
-    // For requests without an origin header (like Postman)
+    // For requests without an origin header (like Postman or webhook calls)
     res.header("Access-Control-Allow-Origin", "*");
   }
 
@@ -102,14 +109,21 @@ app.use((req, res, next) => {
   next();
 });
 
-app.use("/api/clerk-webhooks", express.raw({ type: "application/json" }));
+// Special handling for the webhook route to get raw body
+app.use((req, res, next) => {
+  if (req.path === "/api/clerk-webhooks" && req.method === "POST") {
+    express.raw({ type: "application/json" })(req, res, next);
+  } else {
+    next();
+  }
+});
 
-// Middleware to parse JSON requests
+// Regular body parsers for other routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Routes
-app.use("/api", require("./routes/clerkWebhookRoutes"));
+app.use("/api", clerkWebhookRoutes);
 app.use("/api/plots", plotRoutes);
 app.use("/api/crops", cropRoutes);
 app.use("/api/activity-logs", activityLogRoutes);
@@ -118,7 +132,15 @@ app.use("/api/crop-rotations", cropRotationRoutes);
 
 // Simple route to check server status
 app.get("/api/status", (req, res) => {
-  res.json({ status: "Server is running" });
+  res.json({
+    status: "Server is running",
+    env: {
+      CLERK_SECRET_KEY: process.env.CLERK_SECRET_KEY ? "Set" : "Not set",
+      CLERK_WEBHOOK_SECRET: process.env.CLERK_WEBHOOK_SECRET
+        ? "Set"
+        : "Not set",
+    },
+  });
 });
 
 // Root route
@@ -132,6 +154,7 @@ app.get("/", (req, res) => {
       "/api/harvest-schedules",
       "/api/crop-rotations",
       "/api/status",
+      "/api/clerk-webhooks",
     ],
   });
 });
