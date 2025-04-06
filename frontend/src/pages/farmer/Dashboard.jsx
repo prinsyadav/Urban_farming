@@ -55,6 +55,7 @@ function FarmerDashboard() {
     totalArea: 0,
     cropTypes: 0,
   });
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // Get farmer ID from Clerk metadata
   const farmerId = user?.publicMetadata?.owner_id;
@@ -376,56 +377,81 @@ function FarmerDashboard() {
           </p>
         </div>
 
-        {/* Mobile Menu Button */}
+        {/* Mobile Menu Button - Only keep this ONE implementation */}
         <div className="md:hidden">
-          <Sheet>
+          <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
             <SheetTrigger asChild>
-              <Button variant="outline" size="sm">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsSheetOpen(true)}
+              >
                 <Menu className="h-5 w-5" />
               </Button>
             </SheetTrigger>
-            <SheetContent side="right" className="w-[240px] sm:w-[300px]">
+            <SheetContent
+              side="left"
+              className="w-[240px] sm:w-[300px] bg-white"
+            >
               <div className="py-4">
                 <div className="space-y-1 flex flex-col">
                   <Button
                     variant={activeTab === "overview" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("overview")}
+                    onClick={() => {
+                      setActiveTab("overview");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <LayoutDashboard className="h-4 w-4 mr-2" /> Overview
                   </Button>
                   <Button
                     variant={activeTab === "plots" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("plots")}
+                    onClick={() => {
+                      setActiveTab("plots");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <Map className="h-4 w-4 mr-2" /> Plots
                   </Button>
                   <Button
                     variant={activeTab === "crops" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("crops")}
+                    onClick={() => {
+                      setActiveTab("crops");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <Sprout className="h-4 w-4 mr-2" /> Crops
                   </Button>
                   <Button
                     variant={activeTab === "schedule" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("schedule")}
+                    onClick={() => {
+                      setActiveTab("schedule");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <Calendar className="h-4 w-4 mr-2" /> Schedules
                   </Button>
                   <Button
                     variant={activeTab === "rotations" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("rotations")}
+                    onClick={() => {
+                      setActiveTab("rotations");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <RotateCw className="h-4 w-4 mr-2" /> Rotations
                   </Button>
                   <Button
                     variant={activeTab === "activities" ? "default" : "ghost"}
                     className="justify-start"
-                    onClick={() => setActiveTab("activities")}
+                    onClick={() => {
+                      setActiveTab("activities");
+                      setIsSheetOpen(false);
+                    }}
                   >
                     <Droplets className="h-4 w-4 mr-2" /> Activities
                   </Button>
@@ -436,44 +462,39 @@ function FarmerDashboard() {
         </div>
       </div>
 
-      {/* Dashboard Tabs - Desktop Only */}
-      <div className="hidden md:block">
-        <Tabs
-          defaultValue="overview"
-          value={activeTab}
-          onValueChange={setActiveTab}
-          className="mb-6"
-        >
-          <TabsList className="grid grid-cols-6 w-full max-w-4xl">
+      {/* Desktop Tabs - Add this section */}
+      <div className="hidden md:block mb-6">
+        <Tabs value={activeTab} onValueChange={setActiveTab}>
+          <TabsList className="grid grid-cols-6 w-full max-w-[800px]">
             <TabsTrigger value="overview">
               <LayoutDashboard className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Overview</span>
+              <span>Overview</span>
             </TabsTrigger>
             <TabsTrigger value="plots">
               <Map className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Plots</span>
+              <span>Plots</span>
             </TabsTrigger>
             <TabsTrigger value="crops">
               <Sprout className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Crops</span>
+              <span>Crops</span>
             </TabsTrigger>
             <TabsTrigger value="schedule">
               <Calendar className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Schedules</span>
+              <span>Schedules</span>
             </TabsTrigger>
             <TabsTrigger value="rotations">
               <RotateCw className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Rotations</span>
+              <span>Rotations</span>
             </TabsTrigger>
             <TabsTrigger value="activities">
               <Droplets className="h-4 w-4 mr-2" />
-              <span className="hidden sm:inline">Activities</span>
+              <span>Activities</span>
             </TabsTrigger>
           </TabsList>
         </Tabs>
       </div>
 
-      {/* Mobile Tab Indicator */}
+      {/* Mobile Tab Indicator - Keep this */}
       <div className="md:hidden mb-4">
         <Card>
           <CardHeader className="py-2 px-4">
@@ -672,8 +693,8 @@ function FarmerDashboard() {
                           {getSoilTypeBadge(plot.soil_type)}
                         </TableCell>
                         <TableCell className="hidden lg:table-cell">
-                          {formatDate(plot.lease_start)} -{" "}
-                          {formatDate(plot.lease_end)}
+                          {formatDate(plot.lease_start).split(" ")[0]} -{" "}
+                          {formatDate(plot.lease_end).split(" ")[0]}
                         </TableCell>
                         <TableCell>
                           <Badge
@@ -746,10 +767,10 @@ function FarmerDashboard() {
                             </TableCell>
                             <TableCell>{crop.plot_id}</TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {formatDate(crop.planting_date)}
+                              {formatDate(crop.planting_date).split(" ")[0]}
                             </TableCell>
                             <TableCell className="hidden lg:table-cell">
-                              {formatDate(crop.harvest_date)}
+                              {formatDate(crop.harvest_date).split(" ")[0]}
                             </TableCell>
                             <TableCell>
                               {getCropStatusBadge(crop.status)}
@@ -810,11 +831,17 @@ function FarmerDashboard() {
                                 `Crop #${schedule.crop_id}`}
                             </TableCell>
                             <TableCell>
-                              {formatDate(schedule.expected_harvest_date)}
+                              {
+                                formatDate(
+                                  schedule.expected_harvest_date
+                                ).split(" ")[0]
+                              }
                             </TableCell>
                             <TableCell className="hidden md:table-cell">
                               {schedule.actual_harvest_date ? (
-                                formatDate(schedule.actual_harvest_date)
+                                formatDate(schedule.actual_harvest_date).split(
+                                  " "
+                                )[0]
                               ) : (
                                 <Badge variant="outline">Not harvested</Badge>
                               )}
@@ -877,7 +904,7 @@ function FarmerDashboard() {
                             </TableCell>
                             <TableCell>{rotation.next_crop}</TableCell>
                             <TableCell className="hidden md:table-cell">
-                              {formatDate(rotation.rotation_date)}
+                              {formatDate(rotation.rotation_date).split(" ")[0]}
                             </TableCell>
                           </TableRow>
                         ))
@@ -929,7 +956,9 @@ function FarmerDashboard() {
                       ) : (
                         activityLogs.map((activity) => (
                           <TableRow key={activity.activity_id}>
-                            <TableCell>{formatDate(activity.date)}</TableCell>
+                            <TableCell>
+                              {formatDate(activity.date).split(" ")[0]}
+                            </TableCell>
                             <TableCell>{activity.plot_id}</TableCell>
                             <TableCell>
                               <Badge

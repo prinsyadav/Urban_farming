@@ -82,6 +82,7 @@ function AdminDashboard() {
     totalArea: 0,
     cropTypes: 0,
   });
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   // State for edit forms
   const [showPlotEditForm, setShowPlotEditForm] = useState(false);
@@ -527,11 +528,12 @@ function AdminDashboard() {
 
       {/* Mobile Navigation - Visible on small screens only */}
       <div className="block md:hidden mb-4">
-        <Sheet>
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
           <SheetTrigger asChild>
             <Button
               variant="outline"
               className="w-full flex items-center justify-between"
+              onClick={() => setIsSheetOpen(true)}
             >
               <span>
                 {activeTab.charAt(0).toUpperCase() + activeTab.slice(1)}
@@ -539,55 +541,76 @@ function AdminDashboard() {
               <Menu className="h-4 w-4" />
             </Button>
           </SheetTrigger>
-          <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+          <SheetContent side="left" className="w-[240px] sm:w-[300px] bg-white">
             <div className="py-4">
               <div className="space-y-1 flex flex-col">
                 <Button
                   variant={activeTab === "overview" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("overview")}
+                  onClick={() => {
+                    setActiveTab("overview");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <LayoutDashboard className="h-4 w-4 mr-2" /> Overview
                 </Button>
                 <Button
                   variant={activeTab === "plots" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("plots")}
+                  onClick={() => {
+                    setActiveTab("plots");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <Map className="h-4 w-4 mr-2" /> Plots
                 </Button>
                 <Button
                   variant={activeTab === "crops" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("crops")}
+                  onClick={() => {
+                    setActiveTab("crops");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <Sprout className="h-4 w-4 mr-2" /> Crops
                 </Button>
                 <Button
                   variant={activeTab === "schedule" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("schedule")}
+                  onClick={() => {
+                    setActiveTab("schedule");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <Calendar className="h-4 w-4 mr-2" /> Schedules
                 </Button>
                 <Button
                   variant={activeTab === "rotations" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("rotations")}
+                  onClick={() => {
+                    setActiveTab("rotations");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <RotateCw className="h-4 w-4 mr-2" /> Rotations
                 </Button>
                 <Button
                   variant={activeTab === "activities" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("activities")}
+                  onClick={() => {
+                    setActiveTab("activities");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <Droplets className="h-4 w-4 mr-2" /> Activities
                 </Button>
                 <Button
                   variant={activeTab === "farmers" ? "default" : "ghost"}
                   className="justify-start"
-                  onClick={() => setActiveTab("farmers")}
+                  onClick={() => {
+                    setActiveTab("farmers");
+                    setIsSheetOpen(false);
+                  }}
                 >
                   <Users className="h-4 w-4 mr-2" /> Farmers
                 </Button>
