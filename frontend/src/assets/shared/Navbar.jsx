@@ -39,7 +39,7 @@ function Navbar() {
           <div className="flex">
             <div className="flex-shrink-0 flex items-center">
               <Link to="/" className="font-bold text-xl text-green-600">
-                UrbanFarm
+                LandLease Hub
               </Link>
             </div>
             <div className="hidden sm:ml-6 sm:flex sm:items-center sm:space-x-4">

@@ -8,7 +8,7 @@ function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen">
       <main className="p-4 text-center">
-        <h1 className="text-4xl font-bold mb-6">Urban Farming Platform</h1>
+        <h1 className="text-4xl font-bold mb-6"> LandLease Hub Platform</h1>
         <p className="mb-8 text-lg text-gray-600 max-w-md mx-auto">
           Connecting urban farmers with plots and resources for sustainable
           agriculture.
