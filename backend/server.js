@@ -69,6 +69,7 @@ const cropRoutes = require("./routes/cropRoutes");
 const activityLogRoutes = require("./routes/activityLogRoutes");
 const harvestScheduleRoutes = require("./routes/harvestScheduleRoutes");
 const cropRotationRoutes = require("./routes/cropRotationRoutes");
+const clerkWebhookRoutes = require("./routes/clerkWebhookRoutes");
 
 // Allow CORS with specific origins
 app.use((req, res, next) => {
@@ -101,10 +102,14 @@ app.use((req, res, next) => {
   next();
 });
 
+app.use("/api/clerk-webhooks", express.raw({ type: "application/json" }));
+
 // Middleware to parse JSON requests
 app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
 
 // Routes
+app.use("/api", require("./routes/clerkWebhookRoutes"));
 app.use("/api/plots", plotRoutes);
 app.use("/api/crops", cropRoutes);
 app.use("/api/activity-logs", activityLogRoutes);
